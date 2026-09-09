@@ -7,9 +7,16 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     unzip \
     git \
+    curl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd pdo_mysql zip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20 + npm
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && node --version \
+    && npm --version
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
