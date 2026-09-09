@@ -1,0 +1,951 @@
+/* =========================================================
+   GP FLEET - MODUL PIC
+   Green Planet Corporate UI
+========================================================= */
+
+:root{
+    --gp-green:#16834A;
+    --gp-green-dark:#116B3C;
+    --gp-green-light:#EAF6EF;
+
+    --gp-blue:#2D7FF9;
+    --gp-blue-light:#EEF4FF;
+
+    --gp-warning:#D99500;
+    --gp-warning-light:#FFF7E3;
+
+    --gp-danger:#D64545;
+    --gp-danger-light:#FDECEC;
+
+    --gp-gray:#66716B;
+    --gp-gray-light:#F5F7F6;
+
+    --gp-text:#26332C;
+    --gp-border:#E8ECE9;
+}
+
+/* Background */
+
+.content-wrapper{
+    background:var(--gp-gray-light)!important;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.gp-page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    margin-bottom:24px;
+}
+
+.gp-page-header-left{
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.gp-page-icon{
+    width:54px;
+    height:54px;
+    border-radius:14px;
+    background:var(--gp-green-light);
+    color:var(--gp-green);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+.gp-page-header h1{
+    font-size:28px;
+    font-weight:700;
+    margin:0;
+    color:var(--gp-text);
+}
+
+.gp-page-header p{
+    margin:4px 0 0;
+    color:#74827B;
+    font-size:14px;
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.gp-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:11px 18px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:600;
+    text-decoration:none!important;
+    transition:.2s;
+}
+
+.gp-btn-primary{
+    background:var(--gp-green);
+    color:#fff!important;
+}
+
+.gp-btn-primary:hover{
+    background:var(--gp-green-dark);
+    color:#fff!important;
+}
+
+/* =========================================================
+   ALERT
+========================================================= */
+
+.gp-alert{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:15px 18px;
+    border-radius:12px;
+    margin-bottom:20px;
+    position:relative;
+}
+
+.gp-alert-success{
+    background:#EAF6EF;
+    border:1px solid #CFE8D9;
+}
+
+.gp-alert-danger{
+    background:#FFF2F2;
+    border:1px solid #FFD8D8;
+}
+
+.gp-alert-icon{
+    width:40px;
+    height:40px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#fff;
+    color:var(--gp-green);
+}
+
+.gp-alert-danger .gp-alert-icon{
+    color:var(--gp-danger);
+}
+
+.gp-alert-content strong{
+    display:block;
+    color:var(--gp-text);
+}
+
+.gp-alert-content span{
+    color:#66716B;
+    font-size:13px;
+}
+
+.gp-alert-close{
+    position:absolute;
+    right:16px;
+    top:12px;
+    border:none;
+    background:none;
+    font-size:22px;
+}
+
+/* =========================================================
+   SUMMARY CARD
+========================================================= */
+
+.gp-summary-card{
+    background:#fff;
+    border-radius:16px;
+    border:1px solid var(--gp-border);
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 4px 14px rgba(0,0,0,.04);
+    transition:.25s;
+}
+
+.gp-summary-card:hover{
+    transform:translateY(-3px);
+}
+
+.gp-summary-card span{
+    color:#76837D;
+    font-size:13px;
+    font-weight:600;
+}
+
+.gp-summary-card h2{
+    margin:8px 0;
+    font-size:30px;
+    font-weight:700;
+    color:var(--gp-text);
+}
+
+.gp-summary-card small{
+    color:#97A19B;
+}
+
+.gp-summary-icon{
+    width:54px;
+    height:54px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+}
+
+.green .gp-summary-icon{
+    background:#EAF6EF;
+    color:var(--gp-green);
+}
+
+.success .gp-summary-icon{
+    background:#EDF9F1;
+    color:#23A55A;
+}
+
+.warning .gp-summary-icon{
+    background:#FFF7E3;
+    color:#D99500;
+}
+
+.blue .gp-summary-icon{
+    background:#EEF4FF;
+    color:#2D7FF9;
+}
+
+/* =========================================================
+   TABLE CARD
+========================================================= */
+
+.gp-table-card{
+    background:#fff;
+    border-radius:16px;
+    border:1px solid var(--gp-border);
+    overflow:hidden;
+    box-shadow:0 5px 16px rgba(0,0,0,.05);
+}
+
+.gp-table-header{
+    padding:22px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid var(--gp-border);
+}
+
+.gp-table-title{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.gp-table-title-icon{
+    width:46px;
+    height:46px;
+    border-radius:12px;
+    background:#EAF6EF;
+    color:var(--gp-green);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+}
+
+.gp-table-title h5{
+    margin:0;
+    font-size:18px;
+    font-weight:700;
+}
+
+.gp-table-title span{
+    color:#74827B;
+    font-size:13px;
+}
+
+.gp-data-count{
+    text-align:right;
+}
+
+.gp-data-count strong{
+    color:var(--gp-green);
+    font-size:22px;
+}
+
+.gp-data-count span{
+    display:block;
+    color:#76837D;
+    font-size:12px;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.gp-table-wrapper{
+    overflow-x:auto;
+}
+
+.gp-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.gp-table thead{
+    background:#F8FAF9;
+}
+
+.gp-table th{
+    padding:15px;
+    font-size:12px;
+    font-weight:700;
+    color:#66716B;
+    text-transform:uppercase;
+    border-bottom:1px solid var(--gp-border);
+}
+
+.gp-table td{
+    padding:16px 15px;
+    border-bottom:1px solid #EEF2F0;
+    vertical-align:middle;
+}
+
+.gp-table tbody tr:hover{
+    background:#FCFEFD;
+}
+
+.gp-number{
+    color:#95A09A;
+    font-weight:600;
+}
+
+/* =========================================================
+   PIC INFO
+========================================================= */
+
+.gp-pic{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.gp-pic-avatar{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:#16834A;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:18px;
+}
+
+.gp-pic strong{
+    display:block;
+    color:var(--gp-text);
+    font-size:14px;
+}
+
+.gp-pic small{
+    color:#77827C;
+    font-size:12px;
+}
+
+/* Email HP */
+
+.gp-info{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:#56615B;
+    font-size:13px;
+}
+
+.gp-info i{
+    color:var(--gp-green);
+    width:15px;
+}
+
+/* Badge Jabatan */
+
+.gp-role-badge{
+    display:inline-block;
+    background:#EEF7F1;
+    color:#16834A;
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:600;
+}
+
+/* Badge Unit */
+
+.gp-unit-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:#EAF6EF;
+    color:#16834A;
+    padding:7px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:700;
+}
+
+.gp-unit-badge i{
+    font-size:11px;
+}
+
+/* =========================================================
+   ACTION BUTTON
+========================================================= */
+
+.gp-actions{
+    display:flex;
+    gap:8px;
+}
+
+.gp-action-btn{
+    width:34px;
+    height:34px;
+    border:none;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none!important;
+    transition:.2s;
+    cursor:pointer;
+}
+
+.gp-action-btn.info{
+    background:#EAF3FF;
+    color:#2D7FF9;
+}
+
+.gp-action-btn.edit{
+    background:#FFF7E5;
+    color:#E79A00;
+}
+
+.gp-action-btn.delete{
+    background:#FFECEC;
+    color:#D64545;
+}
+
+.gp-action-btn:hover{
+    transform:translateY(-2px);
+}
+
+.gp-delete-form{
+    display:inline;
+}
+
+/* =========================================================
+   EMPTY STATE
+========================================================= */
+
+.gp-empty-state{
+    padding:45px 20px;
+    text-align:center;
+}
+
+.gp-empty-icon{
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    background:#EAF6EF;
+    color:#16834A;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+    margin:0 auto 16px;
+}
+
+.gp-empty-state strong{
+    display:block;
+    font-size:16px;
+    margin-bottom:6px;
+}
+
+.gp-empty-state span{
+    color:#7A8580;
+    font-size:13px;
+}
+
+.gp-empty-text{
+    color:#A1AAA5;
+}
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.gp-table-footer{
+    padding:18px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.gp-pagination-info{
+    color:#7A8580;
+    font-size:13px;
+}
+
+.gp-pagination .pagination{
+    margin:0;
+}
+
+.gp-pagination .page-link{
+    border-radius:8px!important;
+    margin:0 3px;
+    border:none;
+    color:#16834A;
+    background:#F1F6F3;
+}
+
+.gp-pagination .page-item.active .page-link{
+    background:#16834A;
+    color:#fff;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:768px){
+
+    .gp-page-header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .gp-page-header h1{
+        font-size:22px;
+    }
+
+    .gp-table-header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:14px;
+    }
+
+    .gp-table-footer{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:12px;
+    }
+
+}
+
+/* =========================================================
+   CREATE & EDIT PIC
+========================================================= */
+
+.gp-btn-secondary{
+    background:#fff;
+    color:var(--gp-green);
+    border:1px solid var(--gp-border);
+}
+
+.gp-btn-secondary:hover{
+    background:var(--gp-green-light);
+    color:var(--gp-green-dark);
+}
+
+.gp-btn-outline{
+    background:#fff;
+    color:#5F6963;
+    border:1px solid var(--gp-border);
+}
+
+.gp-btn-outline:hover{
+    background:#F5F7F6;
+}
+
+/* Card Form */
+
+.gp-form-card{
+    background:#fff;
+    border:1px solid var(--gp-border);
+    border-radius:16px;
+    box-shadow:0 5px 16px rgba(0,0,0,.05);
+    overflow:hidden;
+}
+
+.gp-form-header{
+    padding:22px 24px;
+    border-bottom:1px solid var(--gp-border);
+}
+
+.gp-form-title{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.gp-form-title-icon{
+    width:46px;
+    height:46px;
+    border-radius:12px;
+    background:var(--gp-green-light);
+    color:var(--gp-green);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+}
+
+.gp-form-title h5{
+    margin:0;
+    font-size:18px;
+    font-weight:700;
+    color:var(--gp-text);
+}
+
+.gp-form-title span{
+    display:block;
+    margin-top:3px;
+    color:#73817A;
+    font-size:13px;
+}
+
+/* Body */
+
+.gp-form-body{
+    padding:26px 24px;
+}
+
+.gp-form-card .form-group{
+    margin-bottom:22px;
+}
+
+.gp-form-card label{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+
+    font-size:14px;
+    font-weight:600;
+    color:var(--gp-text);
+}
+
+.gp-form-card label i{
+    color:var(--gp-green);
+    width:16px;
+}
+
+/* Input */
+
+.gp-form-card .form-control{
+    height:48px;
+    border-radius:10px;
+    border:1px solid var(--gp-border);
+    font-size:14px;
+    box-shadow:none;
+    transition:.2s;
+}
+
+.gp-form-card .form-control:focus{
+    border-color:var(--gp-green);
+    box-shadow:0 0 0 3px rgba(22,131,74,.10);
+}
+
+/* Footer */
+
+.gp-form-footer{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:12px;
+
+    padding:20px 24px;
+
+    border-top:1px solid var(--gp-border);
+    background:#FCFDFC;
+}
+
+/* Error */
+
+.gp-error-list{
+    margin:10px 0 0;
+    padding-left:18px;
+}
+
+.gp-error-list li{
+    font-size:13px;
+    color:#C52B2B;
+    margin-bottom:3px;
+}
+
+/* Info Card */
+
+.gp-info-card{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+
+    background:#F8FCF9;
+    border:1px solid #DDEEE4;
+    border-radius:14px;
+
+    padding:18px;
+    margin-top:8px;
+}
+
+.gp-info-icon{
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    background:var(--gp-green-light);
+    color:var(--gp-green);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    flex-shrink:0;
+}
+
+.gp-info-card strong{
+    display:block;
+    color:var(--gp-text);
+    margin-bottom:4px;
+}
+
+.gp-info-card p{
+    margin:0;
+    color:#66716B;
+    font-size:13px;
+    line-height:1.6;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+    .gp-form-body{
+        padding:22px 18px;
+    }
+
+    .gp-form-footer{
+        flex-direction:column-reverse;
+        align-items:stretch;
+    }
+
+    .gp-form-footer .gp-btn{
+        width:100%;
+        justify-content:center;
+    }
+
+}
+
+/* =========================================================
+   SHOW PIC
+========================================================= */
+
+/* Header Button */
+.gp-header-actions{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+/* Profile Card */
+
+.gp-profile-card{
+    background:#fff;
+    border:1px solid var(--gp-border);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 5px 18px rgba(0,0,0,.05);
+}
+
+.gp-profile-top{
+    background:linear-gradient(180deg,#16834A,#116B3C);
+    padding:32px 24px;
+    text-align:center;
+    color:#fff;
+}
+
+.gp-profile-avatar{
+    width:88px;
+    height:88px;
+    margin:0 auto 18px;
+
+    border-radius:50%;
+    background:#fff;
+    color:#16834A;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:34px;
+    font-weight:700;
+}
+
+.gp-profile-top h3{
+    margin-bottom:10px;
+    font-size:22px;
+    font-weight:700;
+}
+
+.gp-profile-top .gp-role-badge{
+    background:rgba(255,255,255,.15);
+    color:#fff;
+    border:1px solid rgba(255,255,255,.2);
+}
+
+.gp-profile-info{
+    padding:20px;
+}
+
+.gp-info-item{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 0;
+    border-bottom:1px solid #EEF2F0;
+}
+
+.gp-info-item:last-child{
+    border-bottom:none;
+}
+
+.gp-info-item-icon{
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    background:var(--gp-green-light);
+    color:var(--gp-green);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+}
+
+.gp-info-item small{
+    display:block;
+    color:#8A948F;
+    font-size:12px;
+}
+
+.gp-info-item strong{
+    color:var(--gp-text);
+    font-size:14px;
+}
+
+.gp-profile-footer{
+    padding:20px;
+    border-top:1px solid var(--gp-border);
+    background:#FCFDFC;
+}
+
+/* Unit */
+
+.gp-unit{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.gp-unit-avatar{
+    width:42px;
+    height:42px;
+    border-radius:12px;
+    background:var(--gp-green-light);
+    color:var(--gp-green);
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.gp-unit strong{
+    display:block;
+    color:var(--gp-text);
+}
+
+.gp-unit small{
+    color:#77827C;
+    font-size:12px;
+}
+
+.gp-plate{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:8px;
+    background:#F5F7F6;
+    color:#4F5A54;
+    font-size:12px;
+    font-weight:600;
+}
+
+/* Status */
+
+.gp-status{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 10px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.gp-status-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+}
+
+.gp-status.active{
+    background:#EAF6EF;
+    color:#16834A;
+}
+
+.gp-status.active .gp-status-dot{
+    background:#16834A;
+}
+
+.gp-status.inactive{
+    background:#FDECEC;
+    color:#D64545;
+}
+
+.gp-status.inactive .gp-status-dot{
+    background:#D64545;
+}
+
+/* Responsive */
+
+@media(max-width:768px){
+
+    .gp-header-actions{
+        width:100%;
+    }
+
+    .gp-header-actions .gp-btn{
+        flex:1;
+        justify-content:center;
+    }
+
+}

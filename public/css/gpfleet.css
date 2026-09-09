@@ -1,0 +1,831 @@
+/* ==============================
+   GP FLEET - GREEN PLANET THEME
+============================== */
+
+:root{
+    --gp-primary:#0B8F3A;
+    --gp-dark:#05652B;
+    --gp-light:#EAF8EF;
+    --gp-border:#D6EEDC;
+    --gp-text:#2F3B33;
+}
+
+body{
+    background:#F6F8F7;
+}
+
+/* Sidebar */
+.main-sidebar{
+    background:linear-gradient(180deg,#0B8F3A,#06652A)!important;
+}
+
+.brand-link{
+    background:#06652A!important;
+    border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.brand-link .brand-text{
+    color:white!important;
+    font-weight:700;
+}
+
+/* Sidebar Menu */
+.nav-sidebar .nav-link{
+    border-radius:10px;
+    margin:3px 8px;
+}
+
+.nav-sidebar .nav-link.active{
+    background:#ffffff!important;
+    color:#0B8F3A!important;
+    font-weight:600;
+}
+
+.nav-sidebar .nav-link.active i{
+    color:#0B8F3A!important;
+}
+
+.nav-sidebar .nav-link:hover{
+    background:rgba(255,255,255,.12)!important;
+}
+
+/* Navbar */
+.main-header{
+    border-bottom:1px solid #E5E7EB!important;
+}
+
+/* Card */
+.card{
+    border:none!important;
+    border-radius:16px!important;
+    box-shadow:0 8px 20px rgba(0,0,0,.05)!important;
+}
+
+.card-header{
+    background:white!important;
+    border-bottom:1px solid #EDF2F1!important;
+    border-radius:16px 16px 0 0!important;
+}
+
+/* Button */
+.btn-success{
+    background:#0B8F3A!important;
+    border:#0B8F3A!important;
+}
+
+.btn-success:hover{
+    background:#05652B!important;
+}
+
+.btn-primary{
+    background:#0B8F3A!important;
+    border:#0B8F3A!important;
+}
+
+/* Table */
+.table thead{
+    background:#0B8F3A!important;
+    color:white!important;
+}
+
+.table tbody tr:hover{
+    background:#F0FBF4!important;
+}
+
+/* Badge */
+.badge-success{
+    background:#0B8F3A!important;
+}
+
+.badge-warning{
+    background:#F59E0B!important;
+}
+
+.badge-danger{
+    background:#DC2626!important;
+}
+
+/* Pagination */
+.page-item.active .page-link{
+    background:#0B8F3A!important;
+    border-color:#0B8F3A!important;
+}
+
+.page-link{
+    color:#0B8F3A!important;
+}
+
+/* ==========================================
+   GPFLEET LOGIN PREMIUM
+========================================== */
+
+body.gp-login-page{
+
+    margin:0;
+    font-family:'Poppins',sans-serif;
+
+    background:
+    linear-gradient(135deg,#0C7A32,#22C55E,#0A4F20);
+
+    background-size:300% 300%;
+    animation:bgMove 12s ease infinite;
+
+    height:100vh;
+    overflow:hidden;
+}
+
+@keyframes bgMove{
+
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+
+}
+
+.gp-login-overlay{
+
+position:absolute;
+inset:0;
+
+background:
+url('https://www.transparenttextures.com/patterns/leaf.png');
+
+opacity:.08;
+
+}
+
+.login-wrapper{
+
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+position:relative;
+z-index:10;
+
+}
+
+.login-card{
+
+width:430px;
+padding:45px 38px;
+
+background:rgba(255,255,255,.92);
+backdrop-filter:blur(18px);
+
+border-radius:28px;
+box-shadow:0 25px 55px rgba(0,0,0,.25);
+text-align:center;
+
+animation:fadeUp .7s ease;
+
+}
+
+@keyframes fadeUp{
+
+from{
+opacity:0;
+transform:translateY(40px);
+}
+
+to{
+opacity:1;
+transform:translateY(0);
+}
+
+}
+
+.login-logo{
+width:110px;
+margin-bottom:18px;
+}
+
+.login-card h1{
+font-size:34px;
+font-weight:700;
+color:#0C7A32;
+margin-bottom:6px;
+}
+
+.login-card p{
+color:#64748B;
+margin-bottom:30px;
+font-size:15px;
+}
+
+.gp-input-group{
+position:relative;
+margin-bottom:18px;
+}
+
+.gp-input-group i{
+position:absolute;
+left:18px;
+top:18px;
+color:#0C7A32;
+font-size:17px;
+}
+
+.gp-input-group input{
+width:100%;
+padding:15px 18px 15px 48px;
+border-radius:16px;
+border:1px solid #D1D5DB;
+background:#F8FAFC;
+transition:.3s;
+font-size:14px;
+}
+
+.gp-input-group input:focus{
+outline:none;
+border-color:#22C55E;
+box-shadow:0 0 0 .2rem rgba(34,197,94,.15);
+background:white;
+}
+
+.login-option{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+font-size:13px;
+}
+
+.login-option a{
+color:#0C7A32;
+font-weight:600;
+}
+
+.login-btn{
+width:100%;
+padding:15px;
+border:none;
+border-radius:16px;
+background:linear-gradient(90deg,#0C7A32,#22C55E);
+color:white;
+font-weight:600;
+font-size:15px;
+transition:.3s;
+}
+
+.login-btn:hover{
+transform:translateY(-3px);
+box-shadow:0 15px 30px rgba(34,197,94,.35);
+}
+
+.login-footer{
+margin-top:28px;
+font-size:13px;
+color:#64748B;
+line-height:1.8;
+}
+
+.login-footer strong{
+color:#0C7A32;
+}
+
+@media(max-width:576px){
+
+.login-card{
+width:100%;
+padding:35px 25px;
+border-radius:22px;
+}
+
+.login-card h1{
+font-size:28px;
+}
+
+}
+
+/* =========================================================
+   GP FLEET - MAIN APPLICATION UI
+========================================================= */
+
+:root {
+    --gp-green: #198754;
+    --gp-green-dark: #126b42;
+    --gp-green-soft: #eaf7f0;
+    --gp-sidebar: #17221d;
+    --gp-sidebar-soft: #202d27;
+    --gp-text: #25312b;
+    --gp-muted: #8b9690;
+    --gp-border: #e8ece9;
+}
+
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.gp-navbar {
+    height: 64px;
+    border-bottom: 1px solid var(--gp-border);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    padding: 0 22px;
+}
+
+.gp-menu-toggle {
+    width: 42px;
+    height: 42px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #69746e !important;
+    transition: all 0.2s ease;
+}
+
+.gp-menu-toggle:hover {
+    background: var(--gp-green-soft);
+    color: var(--gp-green) !important;
+}
+
+
+/* =========================================================
+   USER NAVBAR
+========================================================= */
+
+.gp-user-toggle {
+    display: flex !important;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 8px !important;
+    border-radius: 12px;
+    color: var(--gp-text) !important;
+}
+
+.gp-user-toggle:hover {
+    background: #f5f7f6;
+}
+
+.gp-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--gp-green-soft);
+    color: var(--gp-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gp-user-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.gp-chevron {
+    font-size: 10px;
+    color: #9aa39e;
+    margin-left: 3px;
+}
+
+
+/* =========================================================
+   USER DROPDOWN
+========================================================= */
+
+.gp-user-menu {
+    min-width: 260px;
+    border: 0;
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+.gp-user-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+}
+
+.gp-profile-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    background: var(--gp-green-soft);
+    color: var(--gp-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gp-user-header strong {
+    display: block;
+    font-size: 14px;
+    color: var(--gp-text);
+}
+
+.gp-user-header small {
+    display: block;
+    color: var(--gp-muted);
+    margin-top: 2px;
+}
+
+.gp-dropdown-item {
+    border-radius: 9px;
+    padding: 10px 12px;
+    display: flex !important;
+    align-items: center;
+    gap: 11px;
+    font-size: 14px;
+    color: #4c5751;
+    transition: 0.2s ease;
+}
+
+.gp-dropdown-item i {
+    width: 18px;
+    text-align: center;
+    color: #7d8982;
+}
+
+.gp-dropdown-item:hover {
+    background: var(--gp-green-soft);
+    color: var(--gp-green);
+}
+
+.gp-dropdown-item:hover i {
+    color: var(--gp-green);
+}
+
+.gp-logout-item {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: left;
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.gp-sidebar {
+    background: var(--gp-sidebar) !important;
+    border-right: 0;
+}
+
+.gp-sidebar .sidebar {
+    padding: 0 11px 20px;
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.gp-brand {
+    height: 76px;
+    display: flex !important;
+    align-items: center;
+    padding: 10px 17px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.gp-brand-logo {
+    width: 43px;
+    height: 43px;
+    border-radius: 11px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-right: 11px;
+}
+
+.gp-brand-logo img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+.gp-brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+}
+
+.gp-brand-text strong {
+    color: white;
+    font-size: 17px;
+    letter-spacing: 0.8px;
+}
+
+.gp-brand-text span {
+    color: #829089;
+    font-size: 9px;
+    margin-top: 4px;
+    letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   SIDEBAR USER
+========================================================= */
+
+.gp-sidebar-user {
+    margin: 17px 5px 15px;
+    padding: 11px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.045);
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.gp-sidebar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 9px;
+    background: rgba(25, 135, 84, 0.18);
+    color: #58c58c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 9px;
+}
+
+.gp-sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.gp-sidebar-user-info strong {
+    color: #f2f5f3;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 135px;
+}
+
+.gp-sidebar-user-info span {
+    color: #6f8178;
+    font-size: 10px;
+    margin-top: 2px;
+}
+
+.gp-online-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #35c77a;
+    position: absolute;
+    right: 12px;
+    top: 14px;
+}
+
+
+/* =========================================================
+   SIDEBAR HEADER
+========================================================= */
+
+.gp-nav-header {
+    padding: 12px 13px 7px !important;
+    color: #68776f !important;
+    font-size: 9px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.1px;
+}
+
+
+/* =========================================================
+   SIDEBAR MENU
+========================================================= */
+
+.gp-nav-link {
+    margin: 3px 0;
+    padding: 11px 12px !important;
+    border-radius: 9px !important;
+    color: #a8b3ad !important;
+    transition: all 0.2s ease;
+}
+
+.gp-nav-link .nav-icon {
+    font-size: 14px !important;
+    width: 23px;
+    margin-right: 5px !important;
+    color: #78867f;
+}
+
+.gp-nav-link p {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.gp-nav-link:hover {
+    background: rgba(255, 255, 255, 0.055) !important;
+    color: white !important;
+}
+
+.gp-nav-link:hover .nav-icon {
+    color: #55c98b;
+}
+
+.gp-nav-link.active {
+    background: linear-gradient(
+        90deg,
+        rgba(25, 135, 84, 0.95),
+        rgba(25, 135, 84, 0.72)
+    ) !important;
+    color: white !important;
+    box-shadow: 0 5px 14px rgba(25, 135, 84, 0.18);
+}
+
+.gp-nav-link.active .nav-icon {
+    color: white;
+}
+
+
+/* =========================================================
+   COMING SOON
+========================================================= */
+
+.gp-coming-soon {
+    font-size: 8px;
+    padding: 3px 6px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #68776f;
+    margin-top: 2px;
+}
+
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.gp-content-wrapper {
+    background: #f5f7f6;
+    min-height: calc(100vh - 64px);
+}
+
+.gp-content-wrapper .content {
+    padding-bottom: 25px;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.gp-footer {
+    background: white;
+    border-top: 1px solid var(--gp-border);
+    color: #89938e;
+    font-size: 12px;
+    padding: 12px 20px;
+}
+
+.gp-footer strong {
+    color: var(--gp-green);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 767.98px) {
+
+    .gp-navbar {
+        padding: 0 10px;
+    }
+
+    .gp-user-name {
+        display: none;
+    }
+
+    .gp-chevron {
+        display: none;
+    }
+
+    .gp-user-toggle {
+        padding-right: 0 !important;
+    }
+
+    .gp-user-menu {
+        min-width: 235px;
+    }
+
+}
+
+/* ==========================================
+   GP FLEET SIDEBAR V2
+========================================== */
+
+:root{
+    --gp:#15803D;
+    --gp-dark:#0F3D2E;
+    --gp-soft:#E8F7EE;
+}
+
+/* Sidebar Lebar */
+.main-sidebar{
+    width:280px !important;
+}
+
+.content-wrapper,
+.main-footer,
+.main-header{
+    margin-left:280px !important;
+}
+
+.sidebar-collapse .main-sidebar{
+    margin-left:-280px !important;
+}
+
+.sidebar-collapse .content-wrapper,
+.sidebar-collapse .main-footer,
+.sidebar-collapse .main-header{
+    margin-left:0 !important;
+}
+
+/* Background Sidebar */
+.gp-sidebar{
+    background:linear-gradient(180deg,#124734,#0A241C);
+}
+
+/* Brand */
+.gp-brand{
+    background:transparent !important;
+    padding:18px 16px !important;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    height:90px;
+}
+
+.gp-brand .brand-image{
+    width:52px !important;
+    height:52px !important;
+    max-height:none !important;
+    margin-left:0 !important;
+    margin-right:12px;
+    border-radius:14px;
+    background:white;
+    padding:6px;
+}
+
+.gp-brand-text{
+    color:white !important;
+    font-size:20px;
+    font-weight:700;
+    letter-spacing:.5px;
+}
+
+/* Header menu */
+.nav-sidebar .nav-header{
+    color:#8FD8B2 !important;
+    font-size:11px !important;
+    margin-top:18px;
+    padding-left:20px !important;
+    letter-spacing:1.5px;
+}
+
+/* Item menu */
+.nav-sidebar>.nav-item>.nav-link{
+    margin:6px 12px;
+    border-radius:14px;
+    padding:12px 16px;
+    color:#D5E6DB;
+    font-weight:500;
+}
+
+.nav-sidebar>.nav-item>.nav-link i{
+    width:22px;
+    margin-right:10px;
+    color:#8FD8B2;
+}
+
+.nav-sidebar>.nav-item>.nav-link:hover{
+    background:rgba(255,255,255,.08);
+    color:white;
+}
+
+.nav-sidebar>.nav-item>.nav-link.active{
+    background:linear-gradient(90deg,#22C55E,#16A34A);
+    color:white;
+    box-shadow:0 8px 20px rgba(34,197,94,.3);
+}
+
+.nav-sidebar>.nav-item>.nav-link.active i{
+    color:white;
+}
+
+/* Navbar */
+.gp-navbar{
+    height:72px;
+    border-bottom:none;
+    box-shadow:0 5px 20px rgba(0,0,0,.05);
+}
+
+/* Content */
+.gp-content{
+    background:#F4F7F5 !important;
+}
+
+    
