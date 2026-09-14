@@ -247,13 +247,13 @@ foreach ($dokumens as $item) {
                     <option value="">Semua Jenis</option>
 
                     @foreach([
-                            'STNK',
-                            'KIR',
-                            'BPKB',
-                            'Pajak Kendaraan',
-                            'Surat Jalan',
-                            'Dokumen Lainnya'
-                        ] as $jenis)
+    'STNK',
+    'KIR',
+    'BPKB',
+    'Pajak Kendaraan',
+    'Surat Jalan',
+    'Dokumen Lainnya'
+] as $jenis)
 
                         <option value="{{ $jenis }}" {{ request('jenis') == $jenis ? 'selected' : '' }}>
 
@@ -300,6 +300,11 @@ foreach ($dokumens as $item) {
 {{-- TABLE CARD --}}
 {{-- ============================= --}}
 
+<form id="bulkDeleteForm" action="{{ route('dokumen.bulkDestroy') }}" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
+
 <div class="gp-table-card">
 
     <div class="gp-table-header">
@@ -322,6 +327,12 @@ foreach ($dokumens as $item) {
             <span>Dokumen</span>
         </div>
 
+        <button type="button" id="bulkDeleteBtn" class="gp-btn gp-btn-danger" style="display: none;"
+            onclick="submitBulkDelete()">
+            <i class="fas fa-trash"></i>
+            Hapus Terpilih
+        </button>
+
     </div>
 
 
@@ -332,6 +343,10 @@ foreach ($dokumens as $item) {
             <thead>
 
                 <tr>
+
+                <th width="50" class="text-center">
+                    <input type="checkbox" id="checkAll">
+                </th>
 
                     <th width="60">No</th>
 
@@ -359,7 +374,7 @@ foreach ($dokumens as $item) {
 
             @forelse($dokumens as $dokumen)
 
-                @php
+                            @php
 
     $expiredDate = \Carbon\Carbon::parse($dokumen->tanggal_expired);
 
@@ -368,257 +383,263 @@ foreach ($dokumens as $item) {
         false
     );
 
-                @endphp
+                            @endphp
 
-                <tr>
+                            <tr>
 
-                    {{-- NO --}}
+                            {{-- CHECKBOX --}}
 
-                    <td class="gp-number">
-                        {{ $loop->iteration }}
-                    </td>
+                            <td class="text-center">
+                                <input type="checkbox" value="{{ $dokumen->id }}" class="document-checkbox">
+                            </td>
+
+                                {{-- NO --}}
+
+                                <td class="gp-number">
+                                    {{ $loop->iteration }}
+                                </td>
 
 
-                    {{-- UNIT --}}
+                                {{-- UNIT --}}
 
-                    <td>
+                                <td>
 
-                        <div class="gp-unit">
+                                    <div class="gp-unit">
 
-                            <div class="gp-unit-avatar">
+                                        <div class="gp-unit-avatar">
 
-                                @if($dokumen->kendaraan && $dokumen->kendaraan->foto)
+                                            @if($dokumen->kendaraan && $dokumen->kendaraan->foto)
 
-                                    <img src="{{ asset('storage/' . $dokumen->kendaraan->foto) }}">
+                                                <img src="{{ asset('storage/' . $dokumen->kendaraan->foto) }}">
 
-                                @else
+                                            @else
 
-                                    <i class="fas fa-car-side"></i>
+                                                <i class="fas fa-car-side"></i>
 
-                                @endif
+                                            @endif
 
-                            </div>
+                                        </div>
 
-                            <div>
+                                        <div>
 
-                                @if($dokumen->kendaraan)
+                                            @if($dokumen->kendaraan)
 
-                                    <strong>{{ $dokumen->kendaraan->nomor_unit }}</strong>
+                                                <strong>{{ $dokumen->kendaraan->nomor_unit }}</strong>
 
-                                    <small>{{ $dokumen->kendaraan->merk }} • {{ $dokumen->kendaraan->tipe }}</small>
+                                                <small>{{ $dokumen->kendaraan->merk }} • {{ $dokumen->kendaraan->tipe }}</small>
 
-                                    @if($dokumen->kendaraan->plat_nomor)
+                                                @if($dokumen->kendaraan->plat_nomor)
 
-                                        <small class="gp-plate">
-                                            {{ $dokumen->kendaraan->plat_nomor }}
+                                                    <small class="gp-plate">
+                                                        {{ $dokumen->kendaraan->plat_nomor }}
+                                                    </small>
+
+                                                @endif
+
+                                            @else
+
+                                                <span class="text-danger">Unit tidak ditemukan</span>
+
+                                            @endif
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
+
+
+                                {{-- KATEGORI --}}
+
+                                <td>
+
+                                    @if($dokumen->kendaraan)
+
+                                        @if($dokumen->kendaraan->kategori == "Kendaraan")
+
+                                            <span class="gp-badge gp-badge-green">
+                                                Kendaraan
+                                            </span>
+
+                                        @elseif($dokumen->kendaraan->kategori == "HV")
+
+                                            <span class="gp-badge gp-badge-blue">
+                                                Heavy Vehicle
+                                            </span>
+
+                                        @else
+
+                                            <span class="gp-badge gp-badge-gray">
+                                                Heavy Equipment
+                                            </span>
+
+                                        @endif
+
+                                    @else
+
+                                        -
+
+                                    @endif
+
+                                </td>
+
+
+                                {{-- JENIS DOKUMEN --}}
+
+                                <td>
+
+                                    <strong class="gp-doc-title">
+                                        {{ $dokumen->jenis_dokumen }}
+                                    </strong>
+
+                                </td>
+
+
+                                {{-- NOMOR DOKUMEN --}}
+
+                                <td>
+
+                                    <span class="gp-doc-number">
+                                        {{ $dokumen->nomor_dokumen }}
+                                    </span>
+
+                                </td>
+
+
+                                {{-- TANGGAL EXPIRED --}}
+
+                                <td>
+
+                                    <div class="gp-date-info">
+
+                                        <strong>{{ $expiredDate->format('d M Y') }}</strong>
+
+                                        <small>{{ $expiredDate->translatedFormat('l') }}</small>
+
+                                    </div>
+
+                                </td>
+
+
+                                {{-- STATUS --}}
+
+                                <td>
+
+                                    @if($hariTersisa < 0)
+
+                                        <span class="gp-status expired">
+
+                                            <span class="gp-status-dot"></span>
+
+                                            Expired
+
+                                        </span>
+
+                                        <small class="gp-status-text text-danger">
+
+                                            Terlambat {{ abs($hariTersisa) }} hari
+
+                                        </small>
+
+                                    @elseif($hariTersisa <= 30)
+
+                                        <span class="gp-status warning">
+
+                                            <span class="gp-status-dot"></span>
+
+                                            Segera Expired
+
+                                        </span>
+
+                                        <small class="gp-status-text text-warning">
+
+                                            {{ $hariTersisa }} hari lagi
+
+                                        </small>
+
+                                    @else
+
+                                        <span class="gp-status active">
+
+                                            <span class="gp-status-dot"></span>
+
+                                            Aktif
+
+                                        </span>
+
+                                        <small class="gp-status-text text-success">
+
+                                            {{ $hariTersisa }} hari lagi
+
                                         </small>
 
                                     @endif
 
-                                @else
+                                </td>
 
-                                    <span class="text-danger">Unit tidak ditemukan</span>
 
-                                @endif
+                                {{-- FILE --}}
 
-                            </div>
+                                <td>
 
-                        </div>
+                                    @if($dokumen->file)
 
-                    </td>
+                                        <a href="{{ asset('storage/' . $dokumen->file) }}"
+                                            target="_blank"
+                                            class="gp-file-btn">
 
+                                            <i class="fas fa-file-download"></i>
 
-                    {{-- KATEGORI --}}
+                                        </a>
 
-                    <td>
+                                    @else
 
-                        @if($dokumen->kendaraan)
+                                        <span class="gp-empty-file">
+                                            Tidak Ada
+                                        </span>
 
-                            @if($dokumen->kendaraan->kategori == "Kendaraan")
+                                    @endif
 
-                                <span class="gp-badge gp-badge-green">
-                                    Kendaraan
-                                </span>
+                                </td>
 
-                            @elseif($dokumen->kendaraan->kategori == "HV")
 
-                                <span class="gp-badge gp-badge-blue">
-                                    Heavy Vehicle
-                                </span>
+                                {{-- AKSI --}}
 
-                            @else
+                                <td>
 
-                                <span class="gp-badge gp-badge-gray">
-                                    Heavy Equipment
-                                </span>
+                                    <div class="gp-actions">
 
-                            @endif
+                                        <a href="{{ route('dokumen.edit', $dokumen->id) }}"
+                                            class="gp-action-btn edit"
+                                            title="Edit">
 
-                        @else
+                                            <i class="fas fa-pen"></i>
 
-                            -
+                                        </a>
 
-                        @endif
+                                        <form
+                                            action="{{ route('dokumen.destroy', $dokumen->id) }}"
+                                            method="POST"
+                                            class="gp-delete-form">
 
-                    </td>
+                                            @csrf
+                                            @method('DELETE')
 
+                                            <button
+                                                onclick="return confirm('Yakin ingin menghapus dokumen ini?')"
+                                                class="gp-action-btn delete">
 
-                    {{-- JENIS DOKUMEN --}}
+                                                <i class="fas fa-trash"></i>
 
-                    <td>
+                                            </button>
 
-                        <strong class="gp-doc-title">
-                            {{ $dokumen->jenis_dokumen }}
-                        </strong>
+                                        </form>
 
-                    </td>
+                                    </div>
 
+                                </td>
 
-                    {{-- NOMOR DOKUMEN --}}
-
-                    <td>
-
-                        <span class="gp-doc-number">
-                            {{ $dokumen->nomor_dokumen }}
-                        </span>
-
-                    </td>
-
-
-                    {{-- TANGGAL EXPIRED --}}
-
-                    <td>
-
-                        <div class="gp-date-info">
-
-                            <strong>{{ $expiredDate->format('d M Y') }}</strong>
-
-                            <small>{{ $expiredDate->translatedFormat('l') }}</small>
-
-                        </div>
-
-                    </td>
-
-
-                    {{-- STATUS --}}
-
-                    <td>
-
-                        @if($hariTersisa < 0)
-
-                            <span class="gp-status expired">
-
-                                <span class="gp-status-dot"></span>
-
-                                Expired
-
-                            </span>
-
-                            <small class="gp-status-text text-danger">
-
-                                Terlambat {{ abs($hariTersisa) }} hari
-
-                            </small>
-
-                        @elseif($hariTersisa <= 30)
-
-                            <span class="gp-status warning">
-
-                                <span class="gp-status-dot"></span>
-
-                                Segera Expired
-
-                            </span>
-
-                            <small class="gp-status-text text-warning">
-
-                                {{ $hariTersisa }} hari lagi
-
-                            </small>
-
-                        @else
-
-                            <span class="gp-status active">
-
-                                <span class="gp-status-dot"></span>
-
-                                Aktif
-
-                            </span>
-
-                            <small class="gp-status-text text-success">
-
-                                {{ $hariTersisa }} hari lagi
-
-                            </small>
-
-                        @endif
-
-                    </td>
-
-
-                    {{-- FILE --}}
-
-                    <td>
-
-                        @if($dokumen->file)
-
-                            <a href="{{ asset('storage/' . $dokumen->file) }}"
-                                target="_blank"
-                                class="gp-file-btn">
-
-                                <i class="fas fa-file-download"></i>
-
-                            </a>
-
-                        @else
-
-                            <span class="gp-empty-file">
-                                Tidak Ada
-                            </span>
-
-                        @endif
-
-                    </td>
-
-
-                    {{-- AKSI --}}
-
-                    <td>
-
-                        <div class="gp-actions">
-
-                            <a href="{{ route('dokumen.edit', $dokumen->id) }}"
-                                class="gp-action-btn edit"
-                                title="Edit">
-
-                                <i class="fas fa-pen"></i>
-
-                            </a>
-
-                            <form
-                                action="{{ route('dokumen.destroy', $dokumen->id) }}"
-                                method="POST"
-                                class="gp-delete-form">
-
-                                @csrf
-                                @method('DELETE')
-
-                                <button
-                                    onclick="return confirm('Yakin ingin menghapus dokumen ini?')"
-                                    class="gp-action-btn delete">
-
-                                    <i class="fas fa-trash"></i>
-
-                                </button>
-
-                            </form>
-
-                        </div>
-
-                    </td>
-
-                </tr>
+                            </tr>
 
             @empty
 
@@ -683,4 +704,124 @@ foreach ($dokumens as $item) {
 
 </div>
 
+@stop
+
+@section('js')
+<script>
+    let selectedDocuments = JSON.parse(
+        sessionStorage.getItem('selectedDocuments') || '[]'
+    );
+
+    function updateCheckboxes() {
+        document.querySelectorAll('.document-checkbox').forEach(checkbox => {
+            checkbox.checked = selectedDocuments.includes(checkbox.value);
+        });
+
+        updateBulkDeleteButton();
+        updateCheckAll();
+    }
+
+    function updateBulkDeleteButton() {
+        const button = document.getElementById('bulkDeleteBtn');
+
+        if (button) {
+            button.style.display =
+                selectedDocuments.length > 0 ? 'inline-flex' : 'none';
+        }
+    }
+
+    function updateCheckAll() {
+        const checkAll = document.getElementById('checkAll');
+        const checkboxes = document.querySelectorAll('.document-checkbox');
+
+        if (checkboxes.length > 0) {
+            checkAll.checked = [...checkboxes].every(
+                checkbox => selectedDocuments.includes(checkbox.value)
+            );
+        } else {
+            checkAll.checked = false;
+        }
+    }
+
+    document.querySelectorAll('.document-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+
+            if (this.checked) {
+                if (!selectedDocuments.includes(this.value)) {
+                    selectedDocuments.push(this.value);
+                }
+            } else {
+                selectedDocuments = selectedDocuments.filter(
+                    id => id !== this.value
+                );
+            }
+
+            sessionStorage.setItem(
+                'selectedDocuments',
+                JSON.stringify(selectedDocuments)
+            );
+
+            updateBulkDeleteButton();
+            updateCheckAll();
+        });
+    });
+
+    document.getElementById('checkAll').addEventListener('change', function () {
+
+        document.querySelectorAll('.document-checkbox').forEach(checkbox => {
+
+            checkbox.checked = this.checked;
+
+            if (this.checked) {
+                if (!selectedDocuments.includes(checkbox.value)) {
+                    selectedDocuments.push(checkbox.value);
+                }
+            } else {
+                selectedDocuments = selectedDocuments.filter(
+                    id => id !== checkbox.value
+                );
+            }
+
+        });
+
+        sessionStorage.setItem(
+            'selectedDocuments',
+            JSON.stringify(selectedDocuments)
+        );
+
+        updateBulkDeleteButton();
+    });
+
+    function submitBulkDelete() {
+
+        if (selectedDocuments.length === 0) {
+            return;
+        }
+
+        if (!confirm(
+            `Yakin ingin menghapus ${selectedDocuments.length} dokumen yang dipilih?`
+        )) {
+            return;
+        }
+
+        const form = document.getElementById('bulkDeleteForm');
+
+        selectedDocuments.forEach(id => {
+
+            const input = document.createElement('input');
+
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = id;
+
+            form.appendChild(input);
+        });
+
+        sessionStorage.removeItem('selectedDocuments');
+
+        form.submit();
+    }
+
+    updateCheckboxes();
+</script>
 @stop

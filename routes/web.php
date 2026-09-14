@@ -77,15 +77,22 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::resource('kendaraan', KendaraanController::class)->middleware('auth');
+    
+    Route::delete('/kendaraan/bulk-destroy', [KendaraanController::class, 'bulkDestroy'])
+        ->name('kendaraan.bulkDestroy');
 
     Route::post('/kendaraan/import', [KendaraanController::class, 'import'])
         ->middleware('auth')
         ->name('kendaraan.import');
+
+    Route::delete('/dokumen/bulk-destroy', [DokumenController::class, 'bulkDestroy'])
+        ->name('dokumen.bulkDestroy');
     
-        Route::resource('dokumen', DokumenController::class)
+    Route::resource('dokumen', DokumenController::class)
         ->parameters([
             'dokumen' => 'dokumen',
         ]);
+        
     Route::resource('pic', PicController::class)->middleware('auth');
 
     Route::resource('users', UserController::class)

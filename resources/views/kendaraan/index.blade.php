@@ -165,6 +165,11 @@ FILTER
 DATA UNIT
 ========================================================= --}}
 
+<form id="bulkDeleteForm" action="{{ route('kendaraan.bulkDestroy') }}" method="POST" style="display: none;">
+    @csrf
+    @method('DELETE')
+</form>
+
 <div class="gp-table-card">
 
     <div class="gp-table-header">
@@ -190,6 +195,12 @@ DATA UNIT
 
         <div class="gp-data-count">
 
+        <button type="button" id="bulkDeleteBtn" class="gp-btn gp-btn-danger" style="display: none;"
+            onclick="submitBulkDelete()">
+            <i class="fas fa-trash"></i>
+            Hapus Terpilih
+        </button>
+
             <strong>
                 {{ $kendaraans->total() }}
             </strong>
@@ -210,9 +221,11 @@ DATA UNIT
             <table class="table gp-table">
 
                 <thead>
-
                     <tr>
-
+                        <th class="text-center" style="width: 40px;">
+                            <input type="checkbox" id="checkAll">
+                        </th>
+                
                         <th class="text-center gp-no">
                             No
                         </th>
@@ -272,11 +285,15 @@ DATA UNIT
 
                         <tr>
 
-                            {{-- NO --}}
+                        <td class="text-center">
+                            <input type="checkbox" value="{{ $kendaraan->id }}" class="vehicle-checkbox">
+                        </td>
 
-                            <td class="text-center gp-number">
-                                {{ $kendaraans->firstItem() + $loop->index }}
-                            </td>
+                        <td class="text-center gp-no">
+                            {{ $kendaraans->firstItem() + $loop->index }}
+                        </td>
+
+                            {{-- NO --}}
 
 
                             {{-- FOTO --}}
@@ -614,4 +631,117 @@ DATA UNIT
 
 <link rel="stylesheet" href="{{ asset('css/kendaraan.css') }}">
 
+@stop
+
+@section('js')
+<script>
+    let selectedVehicles = JSON.parse(
+        sessionStorage.getItem('selectedVehicles') || '[]'
+    );
+
+    function updateCheckboxes() {
+        document.querySelectorAll('.vehicle-checkbox').forEach(checkbox => {
+            checkbox.checked = selectedVehicles.includes(checkbox.value);
+        });
+
+        updateBulkDeleteButton();
+    }
+
+    function updateBulkDeleteButton() {
+        const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.style.display =
+                selectedVehicles.length > 0 ? 'inline-flex' : 'none';
+        }
+    }
+
+    document.querySelectorAll('.vehicle-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function () {
+            if (this.checked) {
+                if (!selectedVehicles.includes(this.value)) {
+                    selectedVehicles.push(this.value);
+                }
+            } else {
+                selectedVehicles = selectedVehicles.filter(
+                    id => id !== this.value
+                );
+            }
+
+            sessionStorage.setItem(
+                'selectedVehicles',
+                JSON.stringify(selectedVehicles)
+            );
+
+            updateBulkDeleteButton();
+            updateCheckAll();
+        });
+    });
+
+    function updateCheckAll() {
+        const checkAll = document.getElementById('checkAll');
+        const checkboxes = document.querySelectorAll('.vehicle-checkbox');
+
+        if (checkboxes.length > 0) {
+            checkAll.checked = [...checkboxes].every(
+                checkbox => selectedVehicles.includes(checkbox.value)
+            );
+        }
+    }
+
+    document.getElementById('checkAll').addEventListener('change', function () {
+        document.querySelectorAll('.vehicle-checkbox').forEach(checkbox => {
+            checkbox.checked = this.checked;
+
+            if (this.checked) {
+                if (!selectedVehicles.includes(checkbox.value)) {
+                    selectedVehicles.push(checkbox.value);
+                }
+            } else {
+                selectedVehicles = selectedVehicles.filter(
+                    id => id !== checkbox.value
+                );
+            }
+        });
+
+        sessionStorage.setItem(
+            'selectedVehicles',
+            JSON.stringify(selectedVehicles)
+        );
+
+        updateBulkDeleteButton();
+    });
+
+    function submitBulkDelete() {
+        if (selectedVehicles.length === 0) {
+            return;
+        }
+
+        if (!confirm(
+            `Yakin ingin menghapus ${selectedVehicles.length} data unit yang dipilih?`
+        )) {
+            return;
+        }
+
+        const form = document.getElementById('bulkDeleteForm');
+
+        selectedVehicles.forEach(id => {
+            const input = document.createElement('input');
+
+            input.type = 'hidden';
+            input.name = 'ids[]';
+            input.value = id;
+
+            form.appendChild(input);
+        });
+
+        sessionStorage.removeItem('selectedVehicles');
+
+        form.submit();
+    }
+
+    // Pulihkan pilihan setelah pindah halaman
+    updateCheckboxes();
+    updateCheckAll();
+</script>
 @stop

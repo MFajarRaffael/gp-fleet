@@ -175,6 +175,28 @@ class KendaraanController extends Controller
             ->with('success', 'Data Unit berhasil dihapus.');
     }
 
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'exists:kendaraans,id',
+        ]);
+
+        $kendaraans = Kendaraan::whereIn('id', $request->ids)->get();
+
+        foreach ($kendaraans as $kendaraan) {
+            if ($kendaraan->foto) {
+                Storage::disk('public')->delete($kendaraan->foto);
+            }
+
+            $kendaraan->delete();
+        }
+
+        return redirect()
+            ->route('kendaraan.index')
+            ->with('success', count($kendaraans) . ' data unit berhasil dihapus.');
+    }
+
     public function import(Request $request)
     {
         $request->validate([

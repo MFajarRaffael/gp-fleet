@@ -190,4 +190,26 @@ class DokumenController extends Controller
             ->route('dokumen.index')
             ->with('success', 'Dokumen berhasil dihapus.');
     }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array|min:1',
+            'ids.*' => 'exists:dokumens,id',
+        ]);
+
+        $dokumens = Dokumen::whereIn('id', $request->ids)->get();
+
+        foreach ($dokumens as $dokumen) {
+            if ($dokumen->file) {
+                Storage::disk('public')->delete($dokumen->file);
+            }
+
+            $dokumen->delete();
+        }
+
+        return redirect()
+            ->route('dokumen.index')
+            ->with('success', count($dokumens) . ' dokumen berhasil dihapus.');
+    }
 }
