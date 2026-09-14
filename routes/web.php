@@ -76,6 +76,9 @@ Route::get('/dashboard', function () {
 
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+    Route::delete('/kendaraan/bulk-destroy', [KendaraanController::class, 'bulkDestroy'])
+    ->name('kendaraan.bulkDestroy');
+    
     Route::resource('kendaraan', KendaraanController::class)->middleware('auth');
     
     Route::delete('/kendaraan/bulk-destroy', [KendaraanController::class, 'bulkDestroy'])
@@ -92,7 +95,7 @@ Route::get('/dashboard', function () {
         ->parameters([
             'dokumen' => 'dokumen',
         ]);
-        
+
     Route::resource('pic', PicController::class)->middleware('auth');
 
     Route::resource('users', UserController::class)

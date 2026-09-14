@@ -300,7 +300,9 @@ foreach ($dokumens as $item) {
 {{-- TABLE CARD --}}
 {{-- ============================= --}}
 
-<form id="bulkDeleteForm" action="{{ route('dokumen.bulkDestroy') }}" method="POST" style="display: none;">
+<form id="bulkDeleteForm" 
+    action="{{ route('dokumen.bulkDestroy') }}" 
+    method="POST" style="display: none;">
     @csrf
     @method('DELETE')
 </form>

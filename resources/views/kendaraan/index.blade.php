@@ -165,7 +165,10 @@ FILTER
 DATA UNIT
 ========================================================= --}}
 
-<form id="bulkDeleteForm" action="{{ route('kendaraan.bulkDestroy') }}" method="POST" style="display: none;">
+<form id="bulkDeleteForm" 
+    action="{{ route('kendaraan.bulkDestroy') }}" 
+    method="POST" 
+    style="display: none;">
     @csrf
     @method('DELETE')
 </form>
