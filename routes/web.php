@@ -73,6 +73,9 @@ Route::get('/dashboard', function () {
         'akanExpired'
     ));
 
+    Route::get('/hse', function () {
+        return view('hse.index');
+    })->name('hse.index');
 
 })->middleware(['auth', 'verified'])->name('dashboard');
 

@@ -23,13 +23,26 @@ class KendaraanController extends Controller
             $query->where('kategori', $request->kategori);
         }
 
-        $kendaraans = $query
-            ->orderBy('nomor_unit')
-            ->paginate(10)
-            ->withQueryString();
+        // Search berdasarkan plat nomor, nomor unit, merk, tipe, atau project
+        if ($request->filled('search')) {
+            $search = $request->search;
 
-        return view('kendaraan.index', compact('kendaraans'));
-    }
+            $query->where(function ($q) use ($search) {
+                $q->where('plat_nomor', 'like', '%' . $search . '%')
+                ->orWhere('nomor_unit', 'like', '%' . $search . '%')
+                ->orWhere('merk', 'like', '%' . $search . '%')
+                ->orWhere('tipe', 'like', '%' . $search . '%')
+                ->orWhere('project', 'like', '%' . $search . '%');
+            });
+        }
+
+    $kendaraans = $query
+        ->orderBy('nomor_unit')
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('kendaraan.index', compact('kendaraans'));
+}
 
     /**
      * Menampilkan form tambah kendaraan.

@@ -22,5 +22,5 @@
 </p>
 
 <p>
-    <strong>GP Fleet</strong>
+    <strong>Green Planet Indonesia</strong>
 </p>

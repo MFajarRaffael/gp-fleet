@@ -99,66 +99,75 @@ FILTER
 
     </div>
 
-
     <form method="GET" action="{{ route('kendaraan.index') }}">
-
+    
         <div class="gp-filter-body">
-
+    
             <div class="gp-form-group">
-
+    
+                <label for="search">
+                    Cari Unit
+                </label>
+    
+                <input type="text" name="search" id="search" class="form-control gp-select"
+                    placeholder="Plat, nomor unit, merk, tipe, atau project" value="{{ request('search') }}">
+    
+            </div>
+    
+    
+            <div class="gp-form-group">
+    
                 <label for="kategori">
                     Kategori Unit
                 </label>
-
+    
                 <select name="kategori" id="kategori" class="form-control gp-select">
-
+    
                     <option value="">
                         Semua Kategori
                     </option>
-
+    
                     <option value="Kendaraan" {{ request('kategori') == 'Kendaraan' ? 'selected' : '' }}>
                         Kendaraan
                     </option>
-
+    
                     <option value="HV" {{ request('kategori') == 'HV' ? 'selected' : '' }}>
                         Heavy Vehicle (HV)
                     </option>
-
+    
                     <option value="HE" {{ request('kategori') == 'HE' ? 'selected' : '' }}>
                         Heavy Equipment (HE)
                     </option>
-
+    
                 </select>
-
+    
             </div>
-
-
+    
+    
             <div class="gp-filter-actions">
-
+    
                 <button type="submit" class="gp-btn gp-btn-primary">
-
+    
                     <i class="fas fa-search"></i>
-
+    
                     Filter
-
+    
                 </button>
-
-
+    
+    
                 <a href="{{ route('kendaraan.index') }}" class="gp-btn gp-btn-light">
-
+    
                     <i class="fas fa-rotate-right"></i>
-
+    
                     Reset
-
+    
                 </a>
-
+    
             </div>
-
+    
         </div>
-
+    
     </form>
-
-</div>
 
 
 {{-- =========================================================
