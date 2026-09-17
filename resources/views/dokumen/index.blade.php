@@ -205,8 +205,12 @@ foreach ($dokumens as $item) {
 
                     <i class="fas fa-search"></i>
 
-                    <input type="text" name="search" class="form-control"
-                        placeholder="Nomor unit / plat / nomor dokumen" value="{{ request('search') }}">
+                    <input 
+                    type="text" 
+                    name="search" 
+                    class="form-control"
+                    placeholder="Cari dokumen..." 
+                    value="{{ request('search') }}">
 
                 </div>
 

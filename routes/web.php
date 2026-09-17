@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotifikasiController;
+use App\Http\Controllers\GlobalSearchController;
 
 
 Route::get('/', function () {
@@ -80,7 +81,10 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::delete('/kendaraan/bulk-destroy', [KendaraanController::class, 'bulkDestroy'])
-    ->name('kendaraan.bulkDestroy');
+        ->name('kendaraan.bulkDestroy');
+
+    Route::get('/search/global', [GlobalSearchController::class, 'index'])
+        ->name('search.global');
     
     Route::resource('kendaraan', KendaraanController::class)->middleware('auth');
     
@@ -105,7 +109,7 @@ Route::get('/dashboard', function () {
         ->except(['show'])
         ->middleware('auth');
 
-Route::middleware('auth')->group(function () {
+    Route::middleware('auth')->group(function () {
 
     Route::get('/admin/settings', [ProfileController::class, 'edit'])
         ->name('profile.edit');

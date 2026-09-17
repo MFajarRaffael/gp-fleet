@@ -91,10 +91,10 @@ return [
     'auth_logo' => [
         'enabled' => false,
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-            'alt' => 'Auth Logo',
+            'path' => 'images/logoGPI.png',
+            'alt' => 'Green Planet Indonesia',
             'class' => '',
-            'width' => 50,
+            'width' => 100,
             'height' => 50,
         ],
     ],
@@ -118,11 +118,11 @@ return [
         'enabled' => true,
         'mode' => 'fullscreen',
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-            'alt' => 'AdminLTE Preloader Image',
-            'effect' => 'animation__shake',
-            'width' => 60,
-            'height' => 60,
+            'path' => 'images/logoGPI.png',
+            'alt' => 'Green Planet Indonesia',
+            'effect' => 'animation__pulse',
+            'width' => 500,
+            'height' => 150,
         ],
     ],
 

@@ -24,6 +24,7 @@ class DokumenController extends Controller
             $query->where(function ($q) use ($search) {
 
                 $q->where('nomor_dokumen', 'like', "%{$search}%")
+                    ->orWhere('jenis_dokumen', 'like', "%{$search}%") // tambah ini
                     ->orWhereHas('kendaraan', function ($kendaraan) use ($search) {
 
                         $kendaraan->where('nomor_unit', 'like', "%{$search}%")

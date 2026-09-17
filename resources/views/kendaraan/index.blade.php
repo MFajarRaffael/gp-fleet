@@ -646,6 +646,8 @@ DATA UNIT
 @stop
 
 @section('js')
+<script src="{{ asset('js/global-search.js') }}"></script>
+
 <script>
     let selectedVehicles = JSON.parse(
         sessionStorage.getItem('selectedVehicles') || '[]'
@@ -694,35 +696,39 @@ DATA UNIT
         const checkAll = document.getElementById('checkAll');
         const checkboxes = document.querySelectorAll('.vehicle-checkbox');
 
-        if (checkboxes.length > 0) {
+        if (checkAll && checkboxes.length > 0) {
             checkAll.checked = [...checkboxes].every(
                 checkbox => selectedVehicles.includes(checkbox.value)
             );
         }
     }
 
-    document.getElementById('checkAll').addEventListener('change', function () {
-        document.querySelectorAll('.vehicle-checkbox').forEach(checkbox => {
-            checkbox.checked = this.checked;
+    const checkAll = document.getElementById('checkAll');
 
-            if (this.checked) {
-                if (!selectedVehicles.includes(checkbox.value)) {
-                    selectedVehicles.push(checkbox.value);
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            document.querySelectorAll('.vehicle-checkbox').forEach(checkbox => {
+                checkbox.checked = this.checked;
+
+                if (this.checked) {
+                    if (!selectedVehicles.includes(checkbox.value)) {
+                        selectedVehicles.push(checkbox.value);
+                    }
+                } else {
+                    selectedVehicles = selectedVehicles.filter(
+                        id => id !== checkbox.value
+                    );
                 }
-            } else {
-                selectedVehicles = selectedVehicles.filter(
-                    id => id !== checkbox.value
-                );
-            }
+            });
+
+            sessionStorage.setItem(
+                'selectedVehicles',
+                JSON.stringify(selectedVehicles)
+            );
+
+            updateBulkDeleteButton();
         });
-
-        sessionStorage.setItem(
-            'selectedVehicles',
-            JSON.stringify(selectedVehicles)
-        );
-
-        updateBulkDeleteButton();
-    });
+    }
 
     function submitBulkDelete() {
         if (selectedVehicles.length === 0) {
@@ -752,7 +758,6 @@ DATA UNIT
         form.submit();
     }
 
-    // Pulihkan pilihan setelah pindah halaman
     updateCheckboxes();
     updateCheckAll();
 </script>
