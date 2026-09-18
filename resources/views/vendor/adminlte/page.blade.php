@@ -18,6 +18,11 @@
 @section('body')
 <div class="wrapper">
 
+    {{-- Preloader --}}
+    @if(config('adminlte.preloader.enabled'))
+        @include('adminlte::partials.common.preloader')
+    @endif
+
     @include('adminlte::partials.navbar.navbar')
 
     @include('adminlte::partials.sidebar.left-sidebar')
