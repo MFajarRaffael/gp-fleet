@@ -14,7 +14,7 @@ use App\Http\Controllers\GlobalSearchController;
 
 
 Route::get('/', function () {
-    return view('login');
+    return view('auth.login');
 });
 
 Route::get('/dashboard', function () {
