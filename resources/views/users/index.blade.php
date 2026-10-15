@@ -85,11 +85,11 @@
 
 @php
 
-    $totalUser = $users->total();
+$totalUser = $users->total();
 
-    $akunSaya = $users->where('id', auth()->id())->count();
+$akunSaya = $users->where('id', auth()->id())->count();
 
-    $akunLain = $totalUser - $akunSaya;
+$akunLain = $totalUser - $akunSaya;
 
 @endphp
 
@@ -197,6 +197,8 @@
 
                     <th>Email</th>
 
+                    <th width="150">Role</th>
+
                     <th width="150">Status</th>
 
                     <th width="140">Aksi</th>
@@ -261,32 +263,39 @@
 
                         </td>
 
+                        {{-- ROLE --}}
+                        <td>
+                            @if ($user->role === 'super_admin')
+                                <span class="gp-role-badge super-admin">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Super Admin
+                                </span>
+                            @elseif ($user->role === 'admin')
+                                <span class="gp-role-badge admin">
+                                    <i class="fas fa-user-shield"></i>
+                                    Admin
+                                </span>
+                            @else
+                                <span class="gp-role-badge user">
+                                    <i class="fas fa-user"></i>
+                                    User
+                                </span>
+                            @endif
+                        </td>
 
                         {{-- STATUS --}}
                         <td>
-
-                            @if($user->id == auth()->id())
-
+                            @if ($user->id == auth()->id())
                                 <span class="gp-status active">
-
                                     <span class="gp-status-dot"></span>
-
                                     Sedang Login
-
                                 </span>
-
                             @else
-
                                 <span class="gp-status inactive">
-
                                     <span class="gp-status-dot"></span>
-
-                                    Pengguna
-
+                                    Akun Terdaftar
                                 </span>
-
                             @endif
-
                         </td>
 
 
@@ -329,7 +338,7 @@
 
                     <tr>
 
-                        <td colspan="5">
+                        <td colspan="6">
 
                             <div class="gp-empty-state">
 

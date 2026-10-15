@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
@@ -11,22 +13,35 @@ class ProfileController extends Controller
     public function edit()
     {
         return view('profile.edit', [
-            'user' => auth()->user()
+            'user' => Auth::user(),
         ]);
     }
 
+
     public function update(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
         ]);
 
-        $user->update($validated);
+        $emailChanged = $user->email !== $validated['email'];
 
-        return back()->with('success', 'Profile berhasil diperbarui.');
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+        }
+
+        // Simpan satu kali agar tidak memicu update berulang.
+        $user->save();
+
+        return redirect()
+            ->route('profile.edit')
+            ->with('success', 'Profile berhasil diperbarui.');
     }
 
     public function updatePassword(Request $request)
@@ -36,10 +51,46 @@ class ProfileController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        auth()->user()->update([
+        Auth::user()->update([
             'password' => Hash::make($validated['password']),
         ]);
 
-        return back()->with('success', 'Password berhasil diubah.');
+        return redirect()
+            ->route('profile.edit')
+            ->with('success', 'Password berhasil diubah.');
     }
+
+    public function destroy(Request $request)
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => 'required|current_password',
+        ]);
+
+        $user = Auth::user();
+
+        // Jangan izinkan penghapusan akun super admin terakhir.
+        if (
+            $user->isSuperAdmin()
+            && !DB::table('users')
+                ->where('role', 'super_admin')
+                ->where('id', '!=', $user->id)
+                ->exists()
+        ) {
+            return redirect()
+                ->route('profile.edit')
+                ->withErrors([
+                    'password' => 'Akun super admin terakhir tidak dapat dihapus.',
+                ]);
+        }
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+    
 }

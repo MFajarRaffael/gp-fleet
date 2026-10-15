@@ -176,6 +176,33 @@
 
                 </div>
 
+                {{-- ROLE AKUN --}}
+                @if (auth()->user()->isSuperAdmin())
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-user-shield"></i>
+                                Role Akun
+                            </label>
+
+                            <select name="role" class="form-control" required>
+                                <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>
+                                    User
+                                </option>
+                                <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>
+                                    Admin
+                                </option>
+                                <option value="super_admin" {{ old('role', $user->role) === 'super_admin' ? 'selected' : '' }}>
+                                    Super Admin
+                                </option>
+                            </select>
+
+                            @error('role')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
+                @endif
 
                 {{-- INFO CARD --}}
                 <div class="col-lg-12">

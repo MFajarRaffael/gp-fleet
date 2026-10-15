@@ -689,3 +689,31 @@
     }
 
 }
+
+/* Badge Role Akun */
+.gp-role-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.gp-role-badge.super-admin {
+    color: #7e22ce;
+    background: #f3e8ff;
+}
+
+.gp-role-badge.admin {
+    color: #1d4ed8;
+    background: #dbeafe;
+}
+
+.gp-role-badge.user {
+    color: #047857;
+    background: #d1fae5;
+}

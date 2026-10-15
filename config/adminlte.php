@@ -299,9 +299,11 @@ return [
 
     'menu' => [
         // Navbar items:
+
         [
-            'type' => 'navbar-search',
-            'text' => 'search',
+            'text' => '',
+            'url' => 'riwayat-aktivitas',
+            'icon' => 'fas fa-history',
             'topnav_right' => true,
         ],
         [
