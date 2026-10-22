@@ -56,6 +56,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/kendaraan/bulk-destroy', [KendaraanController::class, 'bulkDestroy'])
         ->name('kendaraan.bulkDestroy');
 
+    Route::get('/kendaraan/export', [KendaraanController::class, 'export'])
+        ->name('kendaraan.export');
+
+    Route::get('/kendaraan/{kendaraan}/export', [KendaraanController::class, 'exportDetail'])
+        ->name('kendaraan.exportDetail');
+
     Route::resource('kendaraan', KendaraanController::class);
 
     Route::post('/kendaraan/import', [KendaraanController::class, 'import'])
@@ -63,6 +69,9 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/dokumen/bulk-destroy', [DokumenController::class, 'bulkDestroy'])
         ->name('dokumen.bulkDestroy');
+
+    Route::get('/dokumen/export', [DokumenController::class, 'export'])
+        ->name('dokumen.export');
 
     Route::resource('dokumen', DokumenController::class)
         ->parameters(['dokumen' => 'dokumen']);

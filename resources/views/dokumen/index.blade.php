@@ -23,11 +23,61 @@
 
     </div>
 
+    <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+
     <a href="{{ route('dokumen.create') }}" class="gp-btn gp-btn-primary">
         <i class="fas fa-plus"></i>
         Tambah Dokumen
     </a>
-
+    
+        <div class="dropdown">
+            <button class="gp-btn gp-btn-outline dropdown-toggle" type="button" id="exportDokumenDropdown"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-file-export"></i>
+                Export Dokumen
+            </button>
+    
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="exportDokumenDropdown">
+    
+                <h6 class="dropdown-header">Export Semua / Sesuai Filter</h6>
+    
+                <a class="dropdown-item export-dokumen" href="#" data-format="xlsx">
+                    <i class="fas fa-file-excel text-success mr-2"></i>
+                    Excel (.xlsx)
+                </a>
+    
+                <a class="dropdown-item export-dokumen" href="#" data-format="csv">
+                    <i class="fas fa-file-csv text-info mr-2"></i>
+                    CSV (.csv)
+                </a>
+    
+                <a class="dropdown-item export-dokumen" href="#" data-format="print">
+                    <i class="fas fa-print text-secondary mr-2"></i>
+                    Print / Simpan PDF
+                </a>
+    
+                <div class="dropdown-divider"></div>
+    
+                <h6 class="dropdown-header">Export Dokumen Terpilih</h6>
+    
+                <a class="dropdown-item export-dokumen-selected" href="#" data-format="xlsx">
+                    <i class="fas fa-file-excel text-success mr-2"></i>
+                    Excel Terpilih
+                </a>
+    
+                <a class="dropdown-item export-dokumen-selected" href="#" data-format="csv">
+                    <i class="fas fa-file-csv text-info mr-2"></i>
+                    CSV Terpilih
+                </a>
+    
+                <a class="dropdown-item export-dokumen-selected" href="#" data-format="print">
+                    <i class="fas fa-print text-secondary mr-2"></i>
+                    Print / PDF Terpilih
+                </a>
+    
+            </div>
+        </div>
+    </div>
 </div>
 
 @stop
@@ -830,4 +880,49 @@ foreach ($dokumens as $item) {
 
     updateCheckboxes();
 </script>
+
+<script>
+    // Export semua dokumen atau sesuai filter pencarian.
+    document.querySelectorAll('.export-dokumen').forEach(link => {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            const params = new URLSearchParams(window.location.search);
+            params.set('format', this.dataset.format);
+            params.delete('selected');
+            params.delete('ids[]');
+
+            window.location.href =
+                "{{ route('dokumen.export') }}" + '?' + params.toString();
+        });
+    });
+
+    // Export dokumen yang dicentang, termasuk pilihan lintas halaman.
+    document.querySelectorAll('.export-dokumen-selected').forEach(link => {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            const selectedDocuments = JSON.parse(
+                sessionStorage.getItem('selectedDocuments') || '[]'
+            );
+
+            if (selectedDocuments.length === 0) {
+                alert('Pilih minimal satu dokumen terlebih dahulu.');
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.set('format', this.dataset.format);
+            params.set('selected', '1');
+
+            selectedDocuments.forEach(id => {
+                params.append('ids[]', id);
+            });
+
+            window.location.href =
+                "{{ route('dokumen.export') }}" + '?' + params.toString();
+        });
+    });
+</script>
+
 @stop

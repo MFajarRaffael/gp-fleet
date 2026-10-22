@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Imports\KendaraanImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KendaraanController extends Controller
 {
@@ -208,6 +209,230 @@ class KendaraanController extends Controller
         return redirect()
             ->route('kendaraan.index')
             ->with('success', count($kendaraans) . ' data unit berhasil dihapus.');
+    }
+
+    public function export(Request $request)
+    {
+        $format = $request->query('format', 'xlsx');
+        $scope = $request->query('scope', 'filter');
+
+        // Format print lama tetap didukung sebagai PDF langsung.
+        if ($format === 'print') {
+            $format = 'pdf';
+        }
+
+        if (!in_array($format, ['xlsx', 'csv', 'pdf'], true)) {
+            abort(400, 'Format ekspor tidak valid.');
+        }
+
+        if (!in_array($scope, ['all', 'filter', 'selected'], true)) {
+            abort(400, 'Pilihan ekspor tidak valid.');
+        }
+
+        $query = Kendaraan::with('pic');
+
+        if ($scope === 'selected') {
+            $request->validate([
+                'ids' => 'required|array|min:1',
+                'ids.*' => 'required|integer|distinct|exists:kendaraans,id',
+            ]);
+
+            $query->whereIn('id', $request->query('ids', []));
+        } elseif ($scope === 'filter') {
+            if ($request->filled('kategori')) {
+                $query->where('kategori', $request->query('kategori'));
+            }
+
+            if ($request->filled('search')) {
+                $search = $request->query('search');
+
+                $query->where(function ($q) use ($search) {
+                    $q->where('plat_nomor', 'like', "%{$search}%")
+                        ->orWhere('nomor_unit', 'like', "%{$search}%")
+                        ->orWhere('merk', 'like', "%{$search}%")
+                        ->orWhere('tipe', 'like', "%{$search}%")
+                        ->orWhere('project', 'like', "%{$search}%");
+                });
+            }
+        }
+
+        $kendaraans = $query->orderBy('nomor_unit')->get();
+
+        $headers = [
+            'Nomor Unit',
+            'Kategori',
+            'Plat Nomor',
+            'Merk',
+            'Tipe',
+            'Tahun',
+            'Project',
+            'PIC',
+            'Status',
+        ];
+
+        $data = $kendaraans->map(function ($item) {
+            return [
+                'Nomor Unit' => $item->nomor_unit,
+                'Kategori' => $item->kategori,
+                'Plat Nomor' => $item->plat_nomor,
+                'Merk' => $item->merk,
+                'Tipe' => $item->tipe,
+                'Tahun' => $item->tahun,
+                'Project' => $item->project,
+                'PIC' => $item->pic?->nama ?? '-',
+                'Status' => $item->status,
+            ];
+        });
+
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('exports.kendaraan', [
+                'headers' => $headers,
+                'data' => $data,
+                'judul' => 'Data Unit Kendaraan',
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download('data-kendaraan.pdf');
+        }
+
+        if ($format === 'csv') {
+            return response()->streamDownload(function () use ($data, $headers) {
+                $handle = fopen('php://output', 'w');
+
+                fwrite($handle, "\xEF\xBB\xBF");
+                fputcsv($handle, $headers, ';');
+
+                foreach ($data as $row) {
+                    fputcsv($handle, array_values($row), ';');
+                }
+
+                fclose($handle);
+            }, 'data-kendaraan.csv', [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+            ]);
+        }
+
+        return Excel::download(
+            new \App\Exports\KendaraanExport($data),
+            'data-kendaraan.xlsx'
+        );
+    }
+
+    public function exportDetail(Request $request, Kendaraan $kendaraan)
+    {
+        $format = $request->query('format', 'xlsx');
+
+        if ($format === 'print') {
+            $format = 'pdf';
+        }
+
+        if (!in_array($format, ['xlsx', 'csv', 'pdf'], true)) {
+            abort(400, 'Format ekspor tidak valid.');
+        }
+
+        $kendaraan->load(['pic', 'dokumens']);
+
+        $headers = [
+            'Nomor Unit',
+            'Kategori',
+            'Plat Nomor',
+            'Merk',
+            'Tipe',
+            'Tahun',
+            'Project',
+            'PIC',
+            'Status',
+            'Jenis Dokumen',
+            'Nomor Dokumen',
+            'Tanggal Terbit',
+            'Tanggal Berlaku',
+            'Tanggal Expired',
+        ];
+
+        $dokumens = $kendaraan->dokumens;
+
+        if ($dokumens->isEmpty()) {
+            $dokumens = collect([null]);
+        }
+
+        $data = $dokumens->map(function ($dokumen) use ($kendaraan) {
+            return [
+                'Nomor Unit' => $kendaraan->nomor_unit,
+                'Kategori' => $kendaraan->kategori,
+                'Plat Nomor' => $kendaraan->plat_nomor ?: '-',
+                'Merk' => $kendaraan->merk,
+                'Tipe' => $kendaraan->tipe,
+                'Tahun' => $kendaraan->tahun,
+                'Project' => $kendaraan->project ?: '-',
+                'PIC' => $kendaraan->pic?->nama ?? '-',
+                'Status' => $kendaraan->status,
+                'Jenis Dokumen' => $dokumen?->jenis_dokumen ?? '-',
+                'Nomor Dokumen' => $dokumen?->nomor_dokumen ?? '-',
+                'Tanggal Terbit' => $dokumen?->tanggal_terbit
+                    ? \Carbon\Carbon::parse($dokumen->tanggal_terbit)->format('d-m-Y')
+                    : '-',
+                'Tanggal Berlaku' => $dokumen?->tanggal_berlaku
+                    ? \Carbon\Carbon::parse($dokumen->tanggal_berlaku)->format('d-m-Y')
+                    : '-',
+                'Tanggal Expired' => $dokumen?->tanggal_expired
+                    ? \Carbon\Carbon::parse($dokumen->tanggal_expired)->format('d-m-Y')
+                    : '-',
+            ];
+        });
+
+        $filename = 'detail-unit-' . $kendaraan->nomor_unit;
+
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('exports.kendaraan', [
+                'headers' => $headers,
+                'data' => $data,
+                'judul' => 'Detail Unit: ' . $kendaraan->nomor_unit,
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download($filename . '.pdf');
+        }
+
+        if ($format === 'csv') {
+            return response()->streamDownload(function () use ($data, $headers) {
+                $handle = fopen('php://output', 'w');
+
+                fwrite($handle, "\xEF\xBB\xBF");
+                fputcsv($handle, $headers, ';');
+
+                foreach ($data as $row) {
+                    fputcsv($handle, array_values($row), ';');
+                }
+
+                fclose($handle);
+            }, $filename . '.csv', [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+            ]);
+        }
+
+        return Excel::download(
+            new class ($data, $headers) implements
+            \Maatwebsite\Excel\Concerns\FromCollection,
+            \Maatwebsite\Excel\Concerns\WithHeadings {
+            protected $data;
+            protected $headers;
+
+            public function __construct($data, $headers)
+            {
+                $this->data = $data;
+                $this->headers = $headers;
+            }
+
+            public function collection()
+            {
+                return $this->data->values();
+            }
+
+            public function headings(): array
+            {
+                return $this->headers;
+            }
+            },
+            $filename . '.xlsx'
+        );
     }
 
     public function import(Request $request)

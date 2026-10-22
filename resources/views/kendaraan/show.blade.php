@@ -37,6 +37,39 @@
             Edit Unit
         </a>
 
+        <div class="dropdown">
+            <button class="gp-btn gp-btn-outline dropdown-toggle" type="button" id="exportDetailDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-file-export"></i>
+                Export Detail
+            </button>
+        
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="exportDetailDropdown">
+        
+                <h6 class="dropdown-header">Export Detail Kendaraan</h6>
+        
+                <a class="dropdown-item"
+                    href="{{ route('kendaraan.exportDetail', ['kendaraan' => $kendaraan->id, 'format' => 'xlsx']) }}">
+                    <i class="fas fa-file-excel text-success mr-2"></i>
+                    Excel (.xlsx)
+                </a>
+        
+                <a class="dropdown-item"
+                    href="{{ route('kendaraan.exportDetail', ['kendaraan' => $kendaraan->id, 'format' => 'csv']) }}">
+                    <i class="fas fa-file-csv text-info mr-2"></i>
+                    CSV (.csv)
+                </a>
+        
+                <a class="dropdown-item"
+                    href="{{ route('kendaraan.exportDetail', ['kendaraan' => $kendaraan->id, 'format' => 'print']) }}">
+                    <i class="fas fa-print text-secondary mr-2"></i>
+                    Print / Simpan PDF
+                </a>
+        
+            </div>
+        </div>
+
+
     </div>
     
 

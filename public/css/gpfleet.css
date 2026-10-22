@@ -726,25 +726,12 @@ font-size:28px;
 }
 
 /* Sidebar Lebar */
-.main-sidebar{
-    width:280px !important;
-}
 
-.content-wrapper,
-.main-footer,
-.main-header{
-    margin-left:280px !important;
-}
 
-.sidebar-collapse .main-sidebar{
-    margin-left:-280px !important;
-}
 
-.sidebar-collapse .content-wrapper,
-.sidebar-collapse .main-footer,
-.sidebar-collapse .main-header{
-    margin-left:0 !important;
-}
+
+
+
 
 /* Background Sidebar */
 .gp-sidebar{

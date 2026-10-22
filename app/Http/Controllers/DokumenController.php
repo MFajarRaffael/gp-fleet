@@ -7,6 +7,8 @@ use App\Models\Kendaraan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DokumenController extends Controller
 {
@@ -212,5 +214,174 @@ class DokumenController extends Controller
         return redirect()
             ->route('dokumen.index')
             ->with('success', count($dokumens) . ' dokumen berhasil dihapus.');
+    }
+
+
+    public function export(Request $request)
+    {
+        $format = $request->query('format', 'xlsx');
+        $selected = $request->boolean('selected');
+
+        // Kompatibilitas dengan tombol print yang lama.
+        if ($format === 'print') {
+            $format = 'pdf';
+        }
+
+        if (!in_array($format, ['xlsx', 'csv', 'pdf'], true)) {
+            abort(400, 'Format ekspor tidak valid.');
+        }
+
+        $request->validate([
+            'ids' => 'required_if:selected,1|array|min:1',
+            'ids.*' => 'integer|distinct|exists:dokumens,id',
+        ]);
+
+        $query = Dokumen::with('kendaraan');
+
+        if ($selected) {
+            $query->whereIn('id', $request->input('ids', []));
+        } else {
+            // Pencarian.
+            if ($request->filled('search')) {
+                $search = $request->search;
+
+                $query->where(function ($q) use ($search) {
+                    $q->where('nomor_dokumen', 'like', "%{$search}%")
+                        ->orWhere('jenis_dokumen', 'like', "%{$search}%")
+                        ->orWhereHas('kendaraan', function ($kendaraan) use ($search) {
+                            $kendaraan->where('nomor_unit', 'like', "%{$search}%")
+                                ->orWhere('plat_nomor', 'like', "%{$search}%")
+                                ->orWhere('tipe', 'like', "%{$search}%");
+                        });
+                });
+            }
+
+            // Filter jenis dokumen.
+            if ($request->filled('jenis')) {
+                $query->where('jenis_dokumen', $request->jenis);
+            }
+
+            // Filter status masa berlaku.
+            $today = Carbon::today();
+
+            if ($request->status === 'expired') {
+                $query->whereDate('tanggal_expired', '<', $today);
+            } elseif ($request->status === 'warning') {
+                $query->whereBetween('tanggal_expired', [
+                    $today,
+                    $today->copy()->addDays(30),
+                ]);
+            } elseif ($request->status === 'aktif') {
+                $query->whereDate(
+                    'tanggal_expired',
+                    '>',
+                    $today->copy()->addDays(30)
+                );
+            }
+        }
+
+        $dokumens = $query->latest()->get();
+
+        $headers = [
+            'Nomor Unit',
+            'Kategori',
+            'Plat Nomor',
+            'Merk',
+            'Tipe',
+            'Jenis Dokumen',
+            'Nomor Dokumen',
+            'Tanggal Terbit',
+            'Tanggal Berlaku',
+            'Tanggal Expired',
+            'Status',
+        ];
+
+        $data = $dokumens->map(function ($dokumen) {
+            $kendaraan = $dokumen->kendaraan;
+            $expired = Carbon::parse($dokumen->tanggal_expired)->startOfDay();
+            $today = Carbon::today();
+
+            $status = $expired->lt($today)
+                ? 'Expired'
+                : ($expired->lte($today->copy()->addDays(30))
+                    ? 'Segera Expired'
+                    : 'Aktif');
+
+            return [
+                $kendaraan?->nomor_unit ?? '-',
+                $kendaraan?->kategori ?? '-',
+                $kendaraan?->plat_nomor ?? '-',
+                $kendaraan?->merk ?? '-',
+                $kendaraan?->tipe ?? '-',
+                $dokumen->jenis_dokumen ?? '-',
+                $dokumen->nomor_dokumen ?? '-',
+                $dokumen->tanggal_terbit
+                ? Carbon::parse($dokumen->tanggal_terbit)->format('d-m-Y')
+                : '-',
+                $dokumen->tanggal_berlaku
+                ? Carbon::parse($dokumen->tanggal_berlaku)->format('d-m-Y')
+                : '-',
+                $expired->format('d-m-Y'),
+                $status,
+            ];
+        });
+
+        $filename = 'data-dokumen-' . now()->format('Ymd-His');
+
+        // Export CSV.
+        if ($format === 'csv') {
+            return response()->streamDownload(function () use ($data, $headers) {
+                $handle = fopen('php://output', 'w');
+
+                fwrite($handle, "\xEF\xBB\xBF");
+                fputcsv($handle, $headers, ';');
+
+                foreach ($data as $row) {
+                    fputcsv($handle, $row, ';');
+                }
+
+                fclose($handle);
+            }, $filename . '.csv', [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+            ]);
+        }
+
+        // Export PDF langsung.
+        if ($format === 'pdf') {
+            $pdf = Pdf::loadView('exports.dokumen', [
+                'headers' => $headers,
+                'data' => $data,
+                'judul' => 'Data Dokumen Kendaraan',
+            ])->setPaper('a4', 'landscape');
+
+            return $pdf->download($filename . '.pdf');
+        }
+
+        // Export Excel.
+        return Excel::download(
+            new class ($data, $headers) implements
+            \Maatwebsite\Excel\Concerns\FromCollection,
+            \Maatwebsite\Excel\Concerns\WithHeadings {
+            private $data;
+            private $headers;
+
+            public function __construct($data, $headers)
+            {
+                $this->data = $data;
+                $this->headers = $headers;
+            }
+
+            public function collection()
+            {
+                return $this->data;
+            }
+
+            public function headings(): array
+            {
+                return $this->headers;
+            }
+            },
+            $filename . '.xlsx'
+        );
     }
 }

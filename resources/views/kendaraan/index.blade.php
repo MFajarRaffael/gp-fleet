@@ -5,31 +5,96 @@
 @section('content_header')
 
 <div class="gp-page-header">
-
     <div class="gp-page-header-left">
-
         <div class="gp-page-icon">
             <i class="fas fa-car-side"></i>
         </div>
 
         <div>
             <h1>Data Unit</h1>
-
-            <p>
-                Kelola data kendaraan, heavy vehicle, dan heavy equipment
-            </p>
+            <p>Kelola data kendaraan, heavy vehicle, dan heavy equipment</p>
         </div>
-
     </div>
 
-    <a href="{{ route('kendaraan.create') }}" class="gp-btn gp-btn-primary">
-
-        <i class="fas fa-plus"></i>
-
-        Tambah Unit
-
-    </a>
-
+    <div class="d-flex align-items-center" style="gap: 10px; flex-wrap: wrap;">
+    
+        {{-- Tambah Unit tetap di sebelah kiri --}}
+        <a href="{{ route('kendaraan.create') }}" class="gp-btn gp-btn-primary">
+            <i class="fas fa-plus"></i>
+            Tambah Unit
+        </a>
+    
+        {{-- Export di sebelah kanan, disamakan dengan Dokumen --}}
+        <div class="dropdown">
+            <button class="gp-btn gp-btn-outline dropdown-toggle" type="button" id="exportDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-file-export"></i>
+                Export Data
+            </button>
+    
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="exportDropdown">
+    
+                <h6 class="dropdown-header">Export Semua Data</h6>
+    
+                <a class="dropdown-item" href="{{ route('kendaraan.export', ['scope' => 'all', 'format' => 'xlsx']) }}">
+                    <i class="fas fa-file-excel text-success mr-2"></i>
+                    Excel (.xlsx)
+                </a>
+    
+                <a class="dropdown-item" href="{{ route('kendaraan.export', ['scope' => 'all', 'format' => 'csv']) }}">
+                    <i class="fas fa-file-csv text-info mr-2"></i>
+                    CSV (.csv)
+                </a>
+    
+                <a class="dropdown-item" href="{{ route('kendaraan.export', ['scope' => 'all', 'format' => 'pdf']) }}">
+                    <i class="fas fa-print text-secondary mr-2"></i>
+                    Print / Simpan PDF
+                </a>
+    
+                <div class="dropdown-divider"></div>
+    
+                <h6 class="dropdown-header">Export Sesuai Filter</h6>
+    
+                <a class="dropdown-item"
+                    href="{{ route('kendaraan.export', array_merge(request()->only('search', 'kategori'), ['scope' => 'filter', 'format' => 'xlsx'])) }}">
+                    <i class="fas fa-file-excel text-success mr-2"></i>
+                    Excel (.xlsx)
+                </a>
+    
+                <a class="dropdown-item"
+                    href="{{ route('kendaraan.export', array_merge(request()->only('search', 'kategori'), ['scope' => 'filter', 'format' => 'csv'])) }}">
+                    <i class="fas fa-file-csv text-info mr-2"></i>
+                    CSV (.csv)
+                </a>
+    
+                <a class="dropdown-item"
+                    href="{{ route('kendaraan.export', array_merge(request()->only('search', 'kategori'), ['scope' => 'filter', 'format' => 'pdf'])) }}">
+                    <i class="fas fa-print text-secondary mr-2"></i>
+                    Print / Simpan PDF
+                </a>
+    
+                <div class="dropdown-divider"></div>
+    
+                <h6 class="dropdown-header">Export Data Terpilih</h6>
+    
+                <a class="dropdown-item export-selected" href="#" data-format="xlsx">
+                    <i class="fas fa-file-excel text-success mr-2"></i>
+                    Excel Terpilih
+                </a>
+    
+                <a class="dropdown-item export-selected" href="#" data-format="csv">
+                    <i class="fas fa-file-csv text-info mr-2"></i>
+                    CSV Terpilih
+                </a>
+    
+                <a class="dropdown-item export-selected" href="#" data-format="pdf">
+                    <i class="fas fa-print text-secondary mr-2"></i>
+                    Print / Simpan PDF Terpilih
+                </a>
+    
+            </div>
+        </div>
+    </div>
 </div>
 
 @stop
@@ -206,7 +271,7 @@ DATA UNIT
 
 
         <div class="gp-data-count">
-
+        
         <button type="button" id="bulkDeleteBtn" class="gp-btn gp-btn-danger" style="display: none;"
             onclick="submitBulkDelete()">
             <i class="fas fa-trash"></i>
@@ -652,6 +717,33 @@ DATA UNIT
     let selectedVehicles = JSON.parse(
         sessionStorage.getItem('selectedVehicles') || '[]'
     );
+
+        document.querySelectorAll('.export-selected').forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+
+                const ids = [...new Set(selectedVehicles)];
+
+                if (ids.length === 0) {
+                    alert('Pilih minimal satu unit untuk diekspor.');
+                    return;
+                }
+
+                const url = new URL(
+                    "{{ route('kendaraan.export') }}",
+                    window.location.origin
+                );
+
+                url.searchParams.set('scope', 'selected');
+                url.searchParams.set('format', this.dataset.format);
+
+                ids.forEach(id => {
+                    url.searchParams.append('ids[]', id);
+                });
+
+                window.location.href = url.toString();
+            });
+        });
 
     function updateCheckboxes() {
         document.querySelectorAll('.vehicle-checkbox').forEach(checkbox => {

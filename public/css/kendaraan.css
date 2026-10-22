@@ -1565,3 +1565,120 @@
     }
 
 }
+
+/* =========================================================
+   FINAL FIX: FILTER DAN TABLE FOOTER
+========================================================= */
+
+.gp-filter-card,
+.gp-table-card {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.gp-filter-card {
+    margin-bottom: 24px !important;
+    border-radius: 14px;
+}
+
+.gp-filter-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 16px;
+    padding: 20px 24px;
+    box-sizing: border-box;
+}
+
+.gp-form-group {
+    width: auto;
+    min-width: 0;
+}
+
+.gp-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+}
+
+.gp-table-card {
+    overflow: hidden;
+}
+
+.gp-table-wrapper {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.gp-table-footer {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 15px 22px;
+    border-top: 1px solid #eef1ef;
+    background: #fcfdfc;
+}
+
+.gp-pagination-info {
+    min-width: 0;
+}
+
+.gp-pagination {
+    min-width: 0;
+    max-width: 100%;
+    margin-left: auto;
+}
+
+.gp-pagination .pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin: 0;
+}
+
+@media (max-width: 767.98px) {
+    .gp-filter-body {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 13px;
+        padding: 16px;
+    }
+
+    .gp-filter-actions {
+        width: 100%;
+    }
+
+    .gp-filter-actions .gp-btn {
+        flex: 1;
+    }
+
+    .gp-table-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 14px 16px;
+    }
+
+    .gp-pagination {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .gp-pagination .pagination {
+        justify-content: flex-start;
+    }
+}
+
+
+
+/* Jarak antara Filter Data dan Daftar Unit */
+.gp-filter-card {
+    margin-bottom: 24px !important;
+}
