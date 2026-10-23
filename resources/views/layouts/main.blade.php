@@ -236,44 +236,6 @@
                         </li>
 
 
-                        {{-- Maintenance --}}
-                        <li class="nav-item">
-
-                            <a href="#" class="nav-link gp-nav-link">
-
-                                <i class="nav-icon fa-solid fa-screwdriver-wrench"></i>
-
-                                <p>
-                                    Maintenance
-                                    <span class="right gp-coming-soon">
-                                        Soon
-                                    </span>
-                                </p>
-
-                            </a>
-
-                        </li>
-
-
-                        {{-- Alat Berat --}}
-                        <li class="nav-item">
-
-                            <a href="#" class="nav-link gp-nav-link">
-
-                                <i class="nav-icon fa-solid fa-truck-monster"></i>
-
-                                <p>
-                                    Alat Berat
-                                    <span class="right gp-coming-soon">
-                                        Soon
-                                    </span>
-                                </p>
-
-                            </a>
-
-                        </li>
-
-
                         {{-- SYSTEM --}}
                         <li class="nav-header gp-nav-header">
                             SYSTEM

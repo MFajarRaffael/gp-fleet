@@ -67,18 +67,6 @@
 
             </form>
 
-            <div class="text-center mt-3">
-                <span class="text-muted">
-                    Don't have an account?
-                </span>
-            
-                @if(Route::has('register'))
-                    <a href="{{ route('register') }}" class="font-weight-bold gp-register-link">
-                        Register
-                    </a>
-                @endif
-            </div>
-
             <div class="login-footer">
                 <strong>PT Green Planet Indonesia</strong>
                 <br>

@@ -40,13 +40,6 @@ class Kendaraan extends Model
         return $this->hasMany(Dokumen::class, 'kendaraan_id');
     }
 
-    /**
-     * Kendaraan memiliki banyak riwayat maintenance.
-     */
-    public function maintenances()
-    {
-        return $this->hasMany(Maintenance::class, 'kendaraan_id');
-    }
 
     public function riwayatNotifikasis()
     {
