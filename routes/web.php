@@ -3,14 +3,16 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\KendaraanController;
-use App\Models\Kendaraan;
 use App\Http\Controllers\DokumenController;
-use App\Models\Dokumen;
 use App\Http\Controllers\PicController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\AuditLogController;
+use Illuminate\Http\Request;
+
+use App\Models\Kendaraan;
+use App\Models\Dokumen;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -52,6 +54,7 @@ Route::get('/hse', function () {
 })->middleware('auth')->name('hse.index');
 
 Route::middleware('auth')->group(function () {
+    // Kendaraan
     Route::delete('/kendaraan/bulk-destroy', [KendaraanController::class, 'bulkDestroy'])
         ->name('kendaraan.bulkDestroy');
 
@@ -66,6 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/kendaraan/import', [KendaraanController::class, 'import'])
         ->name('kendaraan.import');
 
+    // Dokumen
     Route::delete('/dokumen/bulk-destroy', [DokumenController::class, 'bulkDestroy'])
         ->name('dokumen.bulkDestroy');
 
@@ -75,25 +79,60 @@ Route::middleware('auth')->group(function () {
     Route::resource('dokumen', DokumenController::class)
         ->parameters(['dokumen' => 'dokumen']);
 
-    // Semua pengguna yang login boleh melihat daftar PIC.
+    // PIC
     Route::get('/pic', [PicController::class, 'index'])
         ->name('pic.index');
 
-    // Hanya Admin dan Super Admin yang boleh mengelola data PIC.
     Route::middleware('role:admin,super_admin')->group(function () {
         Route::resource('pic', PicController::class)->except(['index']);
     });
 
+    // Pencarian global
     Route::get('/search/global', [GlobalSearchController::class, 'index'])
         ->name('search.global');
 
+    // Akun, audit log, dan notifikasi Web Push
     Route::middleware('role:admin,super_admin')->group(function () {
         Route::resource('users', UserController::class)->except(['show']);
+
         Route::get('/riwayat-aktivitas', [AuditLogController::class, 'index'])
             ->name('audit-logs.index');
+
+        Route::get('/push-subscriptions/status', function (Request $request) {
+            return response()->json([
+                'enabled' => $request->user()->pushSubscriptions()->exists(),
+            ]);
+        })->name('push-subscriptions.status');
+
+        Route::post('/push-subscriptions', function (Request $request) {
+        $data = $request->validate([
+            'endpoint' => ['required', 'url', 'max:1024'],
+            'keys.p256dh' => ['required', 'string'],
+            'keys.auth' => ['required', 'string'],
+        ]);
+
+        $request->user()->updatePushSubscription(
+            $data['endpoint'],
+            $data['keys']['p256dh'],
+            $data['keys']['auth']
+        );
+
+        return response()->json(['success' => true]);
+    })->name('push-subscriptions.store');
+
+    Route::delete('/push-subscriptions', function (Request $request) {
+        $data = $request->validate([
+            'endpoint' => ['required', 'url', 'max:1024'],
+        ]);
+
+        $request->user()->deletePushSubscription($data['endpoint']);
+
+        return response()->json(['success' => true]);
+    })->name('push-subscriptions.destroy');
+
     });
 
-
+    // Profil
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
@@ -106,13 +145,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])
         ->name('profile.password');
 
-    // URL lama untuk halaman pengaturan tetap berfungsi.
     Route::redirect('/admin/settings', '/profile');
     Route::redirect('/admin/settings/password', '/profile');
 
+    // Notifikasi dokumen yang sudah ada
     Route::get('/notifikasi', [NotifikasiController::class, 'index'])
         ->name('notifikasi.index');
-
 });
 
 require __DIR__ . '/auth.php';

@@ -306,6 +306,15 @@ return [
             'icon' => 'fas fa-history',
             'topnav_right' => true,
         ],
+
+        [
+            'text' => '',
+            'url' => '#',
+            'icon' => 'fas fa-bell',
+            'topnav_right' => true,
+            'id' => 'gp-push-notification-button',
+        ],
+
         [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,

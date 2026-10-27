@@ -9,7 +9,9 @@ use App\Models\Pic;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use App\Notifications\AuditLogPushNotification;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -51,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
 
             $modelClass::updated(function (Model $model) use ($prefix, &$oldValues) {
                 $key = spl_object_id($model);
+                $changes = $model->getChanges();
                 $before = $oldValues[$key] ?? [];
 
                 unset($oldValues[$key]);
@@ -59,7 +62,7 @@ class AppServiceProvider extends ServiceProvider
                     $model,
                     $prefix . '_updated',
                     $before,
-                    $model->getChanges()
+                    $changes
                 );
             });
 
@@ -72,6 +75,33 @@ class AppServiceProvider extends ServiceProvider
                 );
             });
         }
+
+        View::composer('*', function () {
+            $user = Auth::user();
+            $unreadAuditCount = 0;
+
+            if ($user && $user->isAdmin()) {
+                $query = AuditLog::query();
+
+                if ($user->audit_log_read_at) {
+                    $query->where(
+                        'created_at',
+                        '>',
+                        $user->audit_log_read_at
+                    );
+                }
+
+                $unreadAuditCount = $query->count();
+            }
+
+            config([
+                'adminlte.menu.0.label' => $unreadAuditCount > 0
+                    ? (string) $unreadAuditCount
+                    : null,
+
+                'adminlte.menu.0.label_color' => 'danger',
+            ]);
+        });
     }
 
     protected static function recordAudit(
@@ -98,7 +128,7 @@ class AppServiceProvider extends ServiceProvider
             ?? $model->name
             ?? ('ID ' . $model->getKey());
 
-        AuditLog::create([
+        $auditLog = AuditLog::create([
             'user_id' => $actor?->id,
             'user_name' => $actor?->name ?? 'Sistem',
             'action' => $action,
@@ -111,5 +141,20 @@ class AppServiceProvider extends ServiceProvider
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
+
+        User::query()
+            ->whereIn('role', ['admin', 'super_admin'])
+            ->whereHas('pushSubscriptions')
+            ->each(function (User $user) use ($actor) {
+                if ($actor && $user->is($actor)) {
+                    return;
+                }
+
+                try {
+                    $user->notify(new AuditLogPushNotification());
+                } catch (\Throwable $e) {
+                    report($e);
+                }
+            });
     }
 }

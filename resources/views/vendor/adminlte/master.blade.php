@@ -141,6 +141,214 @@
     {{-- Custom Scripts --}}
     @yield('adminlte_js')
 
+    
+<style>
+    #gp-push-notification-button .nav-link {
+        cursor: pointer;
+    }
+
+    #gp-push-notification-button .nav-icon {
+        color: #9ca3af;
+        transition: color .2s ease;
+    }
+
+    #gp-push-notification-button.gp-push-enabled .nav-icon {
+        color: #16a34a !important;
+    }
+
+    #gp-push-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 99999;
+        display: none;
+        max-width: 320px;
+        padding: 12px 16px;
+        background: #fff;
+        border-left: 4px solid #16a34a;
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0,0,0,.15);
+        color: #333;
+    }
+
+    #gp-push-toast.gp-push-error {
+        border-left-color: #dc3545;
+    }
+
+    #gp-push-toast strong {
+        display: block;
+        margin-bottom: 3px;
+    }
+</style>
+
+<div id="gp-push-toast" role="status" aria-live="polite">
+    <strong>GP Fleet</strong>
+    <span id="gp-push-toast-message"></span>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+        const button = document.getElementById('gp-push-notification-button');
+    if (!button) return;
+
+    const canUsePushNotifications = @json(
+        auth()->check() && auth()->user()->isAdmin()
+    );
+
+    if (!canUsePushNotifications) {
+        button.remove();
+        return;
+    }
+
+    const publicKey = @json(config('webpush.vapid.public_key'));
+    const toast = document.getElementById('gp-push-toast');
+    const toastMessage = document.getElementById('gp-push-toast-message');
+    let toastTimer;
+
+    function showToast(message, isError = false) {
+        toastMessage.textContent = message;
+        toast.classList.toggle('gp-push-error', isError);
+        toast.style.display = 'block';
+
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3500);
+    }
+
+    function setEnabled(enabled) {
+        button.classList.toggle('gp-push-enabled', enabled);
+
+        const link = button.querySelector('a');
+        const icon = button.querySelector('i');
+
+        if (link) {
+            link.title = enabled
+                ? 'Notifikasi aktif'
+                : 'Aktifkan notifikasi';
+            link.setAttribute('aria-label', link.title);
+        }
+
+        if (icon) {
+            icon.style.setProperty(
+                'color',
+                enabled ? '#16a34a' : '#9ca3af',
+                'important'
+            );
+        }
+    }
+
+    function decodeVapidKey(key) {
+        const padding = '='.repeat((4 - key.length % 4) % 4);
+        const base64 = (key + padding)
+            .replace(/-/g, '+')
+            .replace(/_/g, '/');
+
+        const raw = atob(base64);
+        return Uint8Array.from(raw, char => char.charCodeAt(0));
+    }
+
+    async function getRegistration() {
+        return navigator.serviceWorker.register('/sw.js');
+    }
+
+    // Pertahankan warna hijau setelah halaman dimuat ulang.
+    async function checkExistingSubscription() {
+        try {
+            const response = await fetch(@json(route('push-subscriptions.status')), {
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            });
+
+            if (!response.ok) {
+                setEnabled(false);
+                return;
+            }
+
+            const data = await response.json();
+            setEnabled(data.enabled === true);
+        } catch (error) {
+            console.error('Gagal memeriksa status notifikasi:', error);
+            setEnabled(false);
+        }
+    }
+
+    checkExistingSubscription();
+
+    button.addEventListener('click', async function (event) {
+        event.preventDefault();
+
+        try {
+            if (!('serviceWorker' in navigator) ||
+                !('PushManager' in window) ||
+                !('Notification' in window)) {
+                showToast('Browser ini belum mendukung notifikasi push.', true);
+                return;
+            }
+
+            if (!publicKey) {
+                showToast('Konfigurasi notifikasi belum lengkap.', true);
+                return;
+            }
+
+            if (Notification.permission === 'denied') {
+                showToast(
+                    'Izin notifikasi diblokir. Aktifkan melalui pengaturan browser.',
+                    true
+                );
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+
+            if (permission !== 'granted') {
+                showToast('Izin notifikasi belum diberikan.', true);
+                return;
+            }
+
+            const registration = await getRegistration();
+            let subscription =
+                await registration.pushManager.getSubscription();
+
+            if (!subscription) {
+                subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: decodeVapidKey(publicKey)
+                });
+            }
+
+            const response = await fetch(
+                @json(route('push-subscriptions.store')),
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content')
+                    },
+                    body: JSON.stringify(subscription)
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Gagal menyimpan langganan browser.');
+            }
+
+            setEnabled(true);
+            showToast('Notifikasi browser berhasil diaktifkan.');
+        } catch (error) {
+            console.error('Web Push error:', error);
+            showToast('Notifikasi gagal diaktifkan. Silakan coba lagi.', true);
+        }
+    });
+});
+</script>
+
+
 </body>
 
 </html>

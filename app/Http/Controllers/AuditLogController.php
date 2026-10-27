@@ -20,6 +20,14 @@ class AuditLogController extends Controller
             ],
         ]);
 
+        $user = $request->user();
+
+        if ($user) {
+            $user->forceFill([
+                'audit_log_read_at' => now(),
+            ])->saveQuietly();
+        }
+
         $query = AuditLog::query()->latest();
 
         if (!empty($validated['search'])) {
