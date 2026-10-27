@@ -1,5 +1,6 @@
 @extends('adminlte::page')
 
+@section('plugins.Select2', true)
 @section('title', 'Tambah Dokumen Kendaraan')
 
 @section('css')
@@ -7,352 +8,297 @@
 @stop
 
 @section('content_header')
-
-<div class="gp-page-header">
-
-    <div class="gp-page-header-left">
-
-        <div class="gp-page-icon">
-            <i class="fas fa-file-alt"></i>
-        </div>
-
-        <div>
-            <h1>Tambah Dokumen Kendaraan</h1>
-            <p>Tambahkan dokumen kendaraan, heavy vehicle, dan heavy equipment PT Green Planet Indonesia.</p>
-        </div>
-
-    </div>
-
-    <a href="{{ route('dokumen.index') }}" class="gp-btn gp-btn-secondary">
-        <i class="fas fa-arrow-left"></i>
-        Kembali
-    </a>
-
-</div>
-
-@stop
-
-
-@section('content')
-
-@if ($errors->any())
-
-    <div class="gp-alert gp-alert-danger">
-
-        <div class="gp-alert-icon">
-            <i class="fas fa-exclamation-circle"></i>
-        </div>
-
-        <div class="gp-alert-content">
-            <strong>Data belum lengkap.</strong>
-            <span>Silakan periksa kembali form yang masih belum sesuai.</span>
-        </div>
-
-    </div>
-
-@endif
-
-
-<div class="gp-form-card">
-
-    <div class="gp-form-header">
-
-        <div class="gp-form-title">
-
-            <div class="gp-form-title-icon">
+    <div class="gp-page-header">
+        <div class="gp-page-header-left">
+            <div class="gp-page-icon">
                 <i class="fas fa-file-alt"></i>
             </div>
 
             <div>
-                <h5>Informasi Dokumen</h5>
-                <span>Isi informasi dokumen sesuai data kendaraan.</span>
+                <h1>Tambah Dokumen Kendaraan</h1>
+                <p>Tambahkan dokumen kendaraan, heavy vehicle, dan heavy equipment PT Green Planet Indonesia.</p>
             </div>
-
         </div>
 
+        <a href="{{ route('dokumen.index') }}" class="gp-btn gp-btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Kembali
+        </a>
     </div>
+    @stop
 
+    @section('content')
+    @if ($errors->any())
+        <div class="gp-alert gp-alert-danger">
+            <div class="gp-alert-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
 
-    <form action="{{ route('dokumen.store') }}" method="POST" enctype="multipart/form-data">
+            <div class="gp-alert-content">
+                <strong>Data belum lengkap.</strong>
+                <span>Silakan periksa kembali form yang masih belum sesuai.</span>
+            </div>
+        </div>
+    @endif
 
-        @csrf
+    <div class="gp-form-card">
+        <div class="gp-form-header">
+            <div class="gp-form-title">
+                <div class="gp-form-title-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
 
-        <div class="gp-form-body">
+                <div>
+                    <h5>Informasi Dokumen</h5>
+                    <span>Isi informasi dokumen sesuai data kendaraan.</span>
+                </div>
+            </div>
+            </div>
 
-            <div class="row">
+        <form action="{{ route('dokumen.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
 
-                {{-- ===================== --}}
-                {{-- KENDARAAN --}}
-                {{-- ===================== --}}
-                <div class="col-lg-6">
+            <div class="gp-form-body">
+                <div class="row">
+                    {{-- KENDARAAN --}}
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-car"></i>
+                                Kendaraan
+                            </label>
 
-                    <div class="form-group">
+                            @if(isset($kendaraanTerpilih) && $kendaraanTerpilih)
+                                <select class="form-control" disabled>
+                                    @foreach($kendaraans as $k)
+                                        @if($k->id == $kendaraanTerpilih)
+                                            <option selected>
+                                                {{ $k->nomor_unit }} - {{ $k->tipe }} -
+                                                {{ $k->plat_nomor ?: 'Tanpa Plat' }}
+                                            </option>
+                                        @endif
+                                    @endforeach
+                                </select>
 
-                        <label>
-                            <i class="fas fa-car"></i>
-                            Kendaraan
-                        </label>
+                                <input type="hidden" name="kendaraan_id" value="{{ $kendaraanTerpilih }}">
 
-                        @if(isset($kendaraanTerpilih) && $kendaraanTerpilih)
+                                <small class="text-muted mt-2">
+                                    Dokumen akan ditambahkan untuk unit ini.
+                                </small>
+                            @else
+                                <select name="kendaraan_id" class="form-control select2-vehicle"
+                                    data-placeholder="Cari nomor unit atau plat nomor..." required>
+                                    <option value="">-- Pilih Kendaraan --</option>
 
-                            {{-- Jika dari halaman Show Unit --}}
-                            <select class="form-control" disabled>
+                                    @foreach(['Kendaraan', 'HV', 'HE'] as $kategori)
+                                        @php
+                                            $unitKategori = $kendaraans->where('kategori', $kategori);
+                                        @endphp
 
-                                @foreach($kendaraans as $k)
+                                        @if($unitKategori->isNotEmpty())
+                                            <optgroup label="{{ $kategori }}">
+                                                @foreach($unitKategori as $k)
+                                                    <option value="{{ $k->id }}" {{ old('kendaraan_id') == $k->id ? 'selected' : '' }}>
+                                                        {{ $k->nomor_unit }} - {{ $k->tipe }} -
+                                                        {{ $k->plat_nomor ?: 'Tanpa Plat' }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            @endif
 
-                                    @if($k->id == $kendaraanTerpilih)
+                            @error('kendaraan_id')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
+                    </div>
 
-                                        <option selected>
-                                            {{ $k->nomor_unit }}
-                                            -
-                                            {{ $k->tipe }}
-                                            -
-                                            {{ $k->plat_nomor ?: 'Tanpa Plat' }}
-                                        </option>
+                    {{-- JENIS DOKUMEN --}}
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="jenis_dokumen">
+                                <i class="fas fa-file-alt"></i>
+                                Jenis Dokumen
+                            </label>
 
-                                    @endif
+                            <select name="jenis_dokumen" id="jenis_dokumen" class="form-control" required>
+                                <option value="">-- Pilih Jenis Dokumen --</option>
 
-                                @endforeach
-
-                            </select>
-
-                            <input type="hidden" name="kendaraan_id" value="{{ $kendaraanTerpilih }}">
-
-                            <small class="text-muted mt-2">
-                                Dokumen akan ditambahkan untuk unit ini.
-                            </small>
-
-                        @else
-
-                            {{-- Jika dari menu Dokumen --}}
-                            <select name="kendaraan_id" class="form-control" required>
-
-                                <option value="">-- Pilih Kendaraan --</option>
-
-                                @foreach($kendaraans as $k)
-
-                                    <option value="{{ $k->id }}" {{ old('kendaraan_id') == $k->id ? 'selected' : '' }}>
-
-                                        {{ $k->nomor_unit }}
-                                        -
-                                        {{ $k->tipe }}
-                                        -
-                                        {{ $k->plat_nomor ?: 'Tanpa Plat' }}
-
+                                @foreach([
+                                        'STNK',
+                                        'KIR',
+                                        'BPKB',
+                                        'Pajak Kendaraan',
+                                        'Surat Jalan',
+                                        'SILO',
+                                        'Dokumen Lainnya',
+                                    ] as $jenis)
+                                    <option value="{{ $jenis }}" {{ old('jenis_dokumen') == $jenis ? 'selected' : '' }}>
+                                        {{ $jenis }}
                                     </option>
-
                                 @endforeach
-
                             </select>
 
-                        @endif
-
-                        @error('kendaraan_id')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-
+                            @error('jenis_dokumen')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
 
-                </div>
+                    {{-- JENIS DOKUMEN MANUAL --}}
+                    <div class="col-lg-12" id="jenis_dokumen_lainnya_wrapper" style="display: none;">
+                        <div class="form-group">
+                            <label for="jenis_dokumen_lainnya">
+                                <i class="fas fa-pen"></i>
+                                Nama Jenis Dokumen
+                            </label>
 
+                            <input type="text" name="jenis_dokumen_lainnya" id="jenis_dokumen_lainnya" class="form-control"
+                                value="{{ old('jenis_dokumen_lainnya') }}" placeholder="Masukkan nama jenis dokumen"
+                                maxlength="100">
 
-                {{-- ===================== --}}
-                {{-- JENIS DOKUMEN --}}
-                {{-- ===================== --}}
-                <div class="col-lg-6">
-
-                    <div class="form-group">
-
-                        <label>
-                            <i class="fas fa-file-alt"></i>
-                            Jenis Dokumen
-                        </label>
-
-                        <select name="jenis_dokumen" class="form-control" required>
-
-                            <option value="">-- Pilih Jenis Dokumen --</option>
-
-                            @foreach([
-                                    'STNK',
-                                    'KIR',
-                                    'BPKB',
-                                    'Pajak Kendaraan',
-                                    'Surat Jalan',
-                                    'Dokumen Lainnya'
-                                ] as $jenis)
-
-                                <option value="{{ $jenis }}" {{ old('jenis_dokumen') == $jenis ? 'selected' : '' }}>
-                                    {{ $jenis }}
-                                </option>
-
-                            @endforeach
-
-                        </select>
-
-                        @error('jenis_dokumen')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-
+                            @error('jenis_dokumen_lainnya')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
 
-                </div>
+                    {{-- NOMOR DOKUMEN --}}
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="nomor_dokumen">
+                                <i class="fas fa-hashtag"></i>
+                                Nomor Dokumen
+                            </label>
 
+                            <input type="text" name="nomor_dokumen" id="nomor_dokumen" class="form-control"
+                                value="{{ old('nomor_dokumen') }}" placeholder="Masukkan nomor dokumen">
 
-                {{-- ===================== --}}
-                {{-- NOMOR DOKUMEN --}}
-                {{-- ===================== --}}
-                <div class="col-lg-12">
-
-                    <div class="form-group">
-
-                        <label>
-                            <i class="fas fa-hashtag"></i>
-                            Nomor Dokumen
-                        </label>
-
-                        <input type="text" name="nomor_dokumen" class="form-control" value="{{ old('nomor_dokumen') }}"
-                            placeholder="Masukkan nomor dokumen">
-
-                        @error('nomor_dokumen')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-
+                            @error('nomor_dokumen')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
 
-                </div>
+                    {{-- TANGGAL TERBIT --}}
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label for="tanggal_terbit">
+                                <i class="fas fa-calendar-plus"></i>
+                                Tanggal Terbit
+                            </label>
 
+                            <input type="date" name="tanggal_terbit" id="tanggal_terbit" class="form-control"
+                                value="{{ old('tanggal_terbit') }}">
 
-                {{-- ===================== --}}
-                {{-- TANGGAL TERBIT --}}
-                {{-- ===================== --}}
-                <div class="col-lg-4">
-
-                    <div class="form-group">
-
-                        <label>
-                            <i class="fas fa-calendar-plus"></i>
-                            Tanggal Terbit
-                        </label>
-
-                        <input type="date" name="tanggal_terbit" class="form-control"
-                            value="{{ old('tanggal_terbit') }}">
-
-                        @error('tanggal_terbit')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-
+                            @error('tanggal_terbit')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
 
-                </div>
+                    {{-- TANGGAL BERLAKU --}}
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label for="tanggal_berlaku">
+                                <i class="fas fa-calendar-check"></i>
+                                Tanggal Berlaku
+                            </label>
 
+                            <input type="date" name="tanggal_berlaku" id="tanggal_berlaku" class="form-control"
+                                value="{{ old('tanggal_berlaku') }}">
 
-                {{-- ===================== --}}
-                {{-- TANGGAL BERLAKU --}}
-                {{-- ===================== --}}
-                <div class="col-lg-4">
-
-                    <div class="form-group">
-
-                        <label>
-                            <i class="fas fa-calendar-check"></i>
-                            Tanggal Berlaku
-                        </label>
-
-                        <input type="date" name="tanggal_berlaku" class="form-control"
-                            value="{{ old('tanggal_berlaku') }}">
-
-                        @error('tanggal_berlaku')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-
+                            @error('tanggal_berlaku')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
 
-                </div>
+                    {{-- TANGGAL EXPIRED --}}
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label for="tanggal_expired">
+                                <i class="fas fa-calendar-times"></i>
+                                Tanggal Expired
+                            </label>
 
+                            <input type="date" name="tanggal_expired" id="tanggal_expired" class="form-control"
+                                value="{{ old('tanggal_expired') }}">
 
-                {{-- ===================== --}}
-                {{-- TANGGAL EXPIRED --}}
-                {{-- ===================== --}}
-                <div class="col-lg-4">
-
-                    <div class="form-group">
-
-                        <label>
-                            <i class="fas fa-calendar-times"></i>
-                            Tanggal Expired
-                        </label>
-
-                        <input type="date" name="tanggal_expired" class="form-control"
-                            value="{{ old('tanggal_expired') }}">
-
-                        @error('tanggal_expired')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-
+                            @error('tanggal_expired')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
 
-                </div>
+                    {{-- FILE DOKUMEN --}}
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <label for="file">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Upload File Dokumen
+                            </label>
 
+                            <div class="gp-upload-box">
+                                <input type="file" name="file" id="file" class="form-control-file"
+                                    accept=".pdf,.jpg,.jpeg,.png,.webp">
 
-                {{-- ===================== --}}
-                {{-- FILE DOKUMEN --}}
-                {{-- ===================== --}}
-                <div class="col-lg-12">
+                                <div class="gp-upload-info">
+                                    <i class="fas fa-file-upload"></i>
 
-                    <div class="form-group">
-
-                        <label>
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            Upload File Dokumen
-                        </label>
-
-                        <div class="gp-upload-box">
-
-                            <input type="file" name="file" class="form-control-file"
-                                accept=".pdf,.jpg,.jpeg,.png,.webp">
-
-                            <div class="gp-upload-info">
-
-                                <i class="fas fa-file-upload"></i>
-
-                                <div>
-                                    <strong>Pilih file dokumen</strong>
-                                    <p>Format PDF, JPG, JPEG, PNG, WEBP • Maksimal 5 MB.</p>
+                                    <div>
+                                        <strong>Pilih file dokumen</strong>
+                                        <p>Format PDF, JPG, JPEG, PNG, WEBP • Maksimal 20 MB.</p>
+                                    </div>
                                 </div>
-
                             </div>
 
+                            @error('file')
+                                <small class="text-danger">{{ $message }}</small>
+                            @enderror
                         </div>
-
-                        @error('file')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-
-                    </div>
-
+                        </div>
+                </div>
                 </div>
 
+            <div class="gp-form-footer">
+                <button type="submit" class="gp-btn gp-btn-primary">
+                    <i class="fas fa-save"></i>
+                    Simpan Dokumen
+                </button>
+
+                <a href="{{ route('dokumen.index') }}" class="gp-btn gp-btn-outline">
+                    <i class="fas fa-times"></i>
+                    Batal
+                </a>
             </div>
+        </form>
+    </div>
+    @stop
 
-        </div>
+    @section('js')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const jenisDokumen = document.getElementById('jenis_dokumen');
+            const wrapperLainnya = document.getElementById('jenis_dokumen_lainnya_wrapper');
+            const inputLainnya = document.getElementById('jenis_dokumen_lainnya');
 
+            function toggleJenisDokumenLainnya() {
+                const tampilkan = jenisDokumen.value === 'Dokumen Lainnya';
 
-        <div class="gp-form-footer">
+                wrapperLainnya.style.display = tampilkan ? '' : 'none';
+                inputLainnya.required = tampilkan;
 
-            <button type="submit" class="gp-btn gp-btn-primary">
-                <i class="fas fa-save"></i>
-                Simpan Dokumen
-            </button>
+                if (!tampilkan) {
+                    inputLainnya.value = '';
+                }
+            }
 
-            <a href="{{ route('dokumen.index') }}" class="gp-btn gp-btn-outline">
-                <i class="fas fa-times"></i>
-                Batal
-            </a>
+            jenisDokumen.addEventListener('change', toggleJenisDokumenLainnya);
 
-        </div>
-
-    </form>
-
-</div>
-
-@stop
+            toggleJenisDokumenLainnya();
+        });
+    </script>
+    @stop

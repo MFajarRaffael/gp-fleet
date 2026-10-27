@@ -114,30 +114,10 @@
 {{-- ============================= --}}
 
 @php
-
-$totalDokumen = $dokumens->total();
-
-$aktif = 0;
-$warning = 0;
-$expired = 0;
-
-foreach ($dokumens as $item) {
-
-    $hari = now()->startOfDay()->diffInDays(
-        \Carbon\Carbon::parse($item->tanggal_expired)->startOfDay(),
-        false
-    );
-
-    if ($hari < 0) {
-        $expired++;
-    } elseif ($hari <= 30) {
-        $warning++;
-    } else {
-        $aktif++;
-    }
-
-}
-
+    $totalDokumen = $totalDokumen ?? $dokumens->total();
+    $aktif = $dokumenAktif ?? 0;
+    $warning = $dokumenWarning ?? 0;
+    $expired = $dokumenExpired ?? 0;
 @endphp
 
 
@@ -306,7 +286,8 @@ foreach ($dokumens as $item) {
     'BPKB',
     'Pajak Kendaraan',
     'Surat Jalan',
-    'Dokumen Lainnya'
+    'SILO',
+    'Dokumen Lainnya',
 ] as $jenis)
 
                         <option value="{{ $jenis }}" {{ request('jenis') == $jenis ? 'selected' : '' }}>
@@ -430,7 +411,7 @@ foreach ($dokumens as $item) {
 
             @forelse($dokumens as $dokumen)
 
-                            @php
+                                        @php
 
     $expiredDate = \Carbon\Carbon::parse($dokumen->tanggal_expired);
 
@@ -439,263 +420,264 @@ foreach ($dokumens as $item) {
         false
     );
 
-                            @endphp
+                                        @endphp
 
-                            <tr>
+                                        <tr>
 
-                            {{-- CHECKBOX --}}
+                                        {{-- CHECKBOX --}}
 
-                            <td class="text-center">
-                                <input type="checkbox" value="{{ $dokumen->id }}" class="document-checkbox">
-                            </td>
+                                        <td class="text-center">
+                                            <input type="checkbox" value="{{ $dokumen->id }}" class="document-checkbox">
+                                        </td>
 
-                                {{-- NO --}}
+                                            {{-- NO --}}
 
-                                <td class="gp-number">
-                                    {{ $loop->iteration }}
-                                </td>
+                                            <td class="gp-number">
+                                                {{ $loop->iteration }}
+                                            </td>
 
 
-                                {{-- UNIT --}}
+                                            {{-- UNIT --}}
 
-                                <td>
+                                            <td>
 
-                                    <div class="gp-unit">
+                                                <div class="gp-unit">
 
-                                        <div class="gp-unit-avatar">
+                                                    <div class="gp-unit-avatar">
 
-                                            @if($dokumen->kendaraan && $dokumen->kendaraan->foto)
+                                                        @if($dokumen->kendaraan && $dokumen->kendaraan->foto)
 
-                                                <img src="{{ asset('storage/' . $dokumen->kendaraan->foto) }}">
+                                                            <img src="{{ asset('storage/' . $dokumen->kendaraan->foto) }}">
 
-                                            @else
+                                                        @else
 
-                                                <i class="fas fa-car-side"></i>
+                                                            <i class="fas fa-car-side"></i>
 
-                                            @endif
+                                                        @endif
 
-                                        </div>
+                                                    </div>
 
-                                        <div>
+                                                    <div>
 
-                                            @if($dokumen->kendaraan)
+                                                        @if($dokumen->kendaraan)
 
-                                                <strong>{{ $dokumen->kendaraan->nomor_unit }}</strong>
+                                                            <strong>{{ $dokumen->kendaraan->nomor_unit }}</strong>
 
-                                                <small>{{ $dokumen->kendaraan->merk }} • {{ $dokumen->kendaraan->tipe }}</small>
+                                                            <small>{{ $dokumen->kendaraan->merk }} • {{ $dokumen->kendaraan->tipe }}</small>
 
-                                                @if($dokumen->kendaraan->plat_nomor)
+                                                            @if($dokumen->kendaraan->plat_nomor)
 
-                                                    <small class="gp-plate">
-                                                        {{ $dokumen->kendaraan->plat_nomor }}
+                                                                <small class="gp-plate">
+                                                                    {{ $dokumen->kendaraan->plat_nomor }}
+                                                                </small>
+
+                                                            @endif
+
+                                                        @else
+
+                                                            <span class="text-danger">Unit tidak ditemukan</span>
+
+                                                        @endif
+
+                                                    </div>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            {{-- KATEGORI --}}
+
+                                            <td>
+
+                                                @if($dokumen->kendaraan)
+
+                                                    @if($dokumen->kendaraan->kategori == "Kendaraan")
+
+                                                        <span class="gp-badge gp-badge-green">
+                                                            Kendaraan
+                                                        </span>
+
+                                                    @elseif($dokumen->kendaraan->kategori == "HV")
+
+                                                        <span class="gp-badge gp-badge-blue">
+                                                            Heavy Vehicle
+                                                        </span>
+
+                                                    @else
+
+                                                        <span class="gp-badge gp-badge-gray">
+                                                            Heavy Equipment
+                                                        </span>
+
+                                                    @endif
+
+                                                @else
+
+                                                    -
+
+                                                @endif
+
+                                            </td>
+
+
+                                            {{-- JENIS DOKUMEN --}}
+
+                                            <td>
+
+                                                <strong class="gp-doc-title">
+                                                    {{ $dokumen->jenis_dokumen }}
+                                                </strong>
+
+                                            </td>
+
+
+                                            {{-- NOMOR DOKUMEN --}}
+
+                                            <td>
+
+                                                <span class="gp-doc-number">
+                                                    {{ $dokumen->nomor_dokumen }}
+                                                </span>
+
+                                            </td>
+
+
+                                            {{-- TANGGAL EXPIRED --}}
+
+                                            <td>
+
+                                                <div class="gp-date-info">
+
+                                                    <strong>{{ $expiredDate->format('d M Y') }}</strong>
+
+                                                    <small>{{ $expiredDate->translatedFormat('l') }}</small>
+
+                                                </div>
+
+                                            </td>
+
+
+                                            {{-- STATUS --}}
+
+                                            <td>
+
+                                                @if($hariTersisa < 0)
+
+                                                    <span class="gp-status expired">
+
+                                                        <span class="gp-status-dot"></span>
+
+                                                        Expired
+
+                                                    </span>
+
+                                                    <small class="gp-status-text text-danger">
+
+                                                        Terlambat {{ abs($hariTersisa) }} hari
+
+                                                    </small>
+
+                                                @elseif($hariTersisa <= 30)
+
+                                                    <span class="gp-status warning">
+
+                                                        <span class="gp-status-dot"></span>
+
+                                                        Segera Expired
+
+                                                    </span>
+
+                                                    <small class="gp-status-text text-warning">
+
+                                                        {{ $hariTersisa }} hari lagi
+
+                                                    </small>
+
+                                                @else
+
+                                                    <span class="gp-status active">
+
+                                                        <span class="gp-status-dot"></span>
+
+                                                        Aktif
+
+                                                    </span>
+
+                                                    <small class="gp-status-text text-success">
+
+                                                        {{ $hariTersisa }} hari lagi
+
                                                     </small>
 
                                                 @endif
 
-                                            @else
+                                            </td>
 
-                                                <span class="text-danger">Unit tidak ditemukan</span>
 
-                                            @endif
+                                            {{-- FILE --}}
 
-                                        </div>
+                                            <td>
 
-                                    </div>
+                                                @if($dokumen->file)
 
-                                </td>
+                                                    <a href="{{ asset('storage/' . $dokumen->file) }}"
+                                                        target="_blank"
+                                                        class="gp-file-btn">
 
+                                                        <i class="fas fa-file-download"></i>
 
-                                {{-- KATEGORI --}}
+                                                    </a>
 
-                                <td>
+                                                @else
 
-                                    @if($dokumen->kendaraan)
+                                                    <span class="gp-empty-file">
+                                                        Tidak Ada
+                                                    </span>
 
-                                        @if($dokumen->kendaraan->kategori == "Kendaraan")
+                                                @endif
 
-                                            <span class="gp-badge gp-badge-green">
-                                                Kendaraan
-                                            </span>
+                                            </td>
 
-                                        @elseif($dokumen->kendaraan->kategori == "HV")
 
-                                            <span class="gp-badge gp-badge-blue">
-                                                Heavy Vehicle
-                                            </span>
+                                            {{-- AKSI --}}
 
-                                        @else
+                                            <td>
 
-                                            <span class="gp-badge gp-badge-gray">
-                                                Heavy Equipment
-                                            </span>
+                                                <div class="gp-actions">
 
-                                        @endif
+                                                    <a href="{{ route('dokumen.edit', array_merge(
+        ['dokumen' => $dokumen->id],
+        request()->only('search', 'status', 'jenis', 'page')
+    )) }}" class="gp-action-btn edit" title="Edit">
 
-                                    @else
+                                                        <i class="fas fa-pen"></i>
 
-                                        -
+                                                    </a>
 
-                                    @endif
+                                                    <form
+                                                        action="{{ route('dokumen.destroy', $dokumen->id) }}"
+                                                        method="POST"
+                                                        class="gp-delete-form">
 
-                                </td>
+                                                        @csrf
+                                                        @method('DELETE')
 
+                                                        <button
+                                                            onclick="return confirm('Yakin ingin menghapus dokumen ini?')"
+                                                            class="gp-action-btn delete">
 
-                                {{-- JENIS DOKUMEN --}}
+                                                            <i class="fas fa-trash"></i>
 
-                                <td>
+                                                        </button>
 
-                                    <strong class="gp-doc-title">
-                                        {{ $dokumen->jenis_dokumen }}
-                                    </strong>
+                                                    </form>
 
-                                </td>
+                                                </div>
 
+                                            </td>
 
-                                {{-- NOMOR DOKUMEN --}}
-
-                                <td>
-
-                                    <span class="gp-doc-number">
-                                        {{ $dokumen->nomor_dokumen }}
-                                    </span>
-
-                                </td>
-
-
-                                {{-- TANGGAL EXPIRED --}}
-
-                                <td>
-
-                                    <div class="gp-date-info">
-
-                                        <strong>{{ $expiredDate->format('d M Y') }}</strong>
-
-                                        <small>{{ $expiredDate->translatedFormat('l') }}</small>
-
-                                    </div>
-
-                                </td>
-
-
-                                {{-- STATUS --}}
-
-                                <td>
-
-                                    @if($hariTersisa < 0)
-
-                                        <span class="gp-status expired">
-
-                                            <span class="gp-status-dot"></span>
-
-                                            Expired
-
-                                        </span>
-
-                                        <small class="gp-status-text text-danger">
-
-                                            Terlambat {{ abs($hariTersisa) }} hari
-
-                                        </small>
-
-                                    @elseif($hariTersisa <= 30)
-
-                                        <span class="gp-status warning">
-
-                                            <span class="gp-status-dot"></span>
-
-                                            Segera Expired
-
-                                        </span>
-
-                                        <small class="gp-status-text text-warning">
-
-                                            {{ $hariTersisa }} hari lagi
-
-                                        </small>
-
-                                    @else
-
-                                        <span class="gp-status active">
-
-                                            <span class="gp-status-dot"></span>
-
-                                            Aktif
-
-                                        </span>
-
-                                        <small class="gp-status-text text-success">
-
-                                            {{ $hariTersisa }} hari lagi
-
-                                        </small>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- FILE --}}
-
-                                <td>
-
-                                    @if($dokumen->file)
-
-                                        <a href="{{ asset('storage/' . $dokumen->file) }}"
-                                            target="_blank"
-                                            class="gp-file-btn">
-
-                                            <i class="fas fa-file-download"></i>
-
-                                        </a>
-
-                                    @else
-
-                                        <span class="gp-empty-file">
-                                            Tidak Ada
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                {{-- AKSI --}}
-
-                                <td>
-
-                                    <div class="gp-actions">
-
-                                        <a href="{{ route('dokumen.edit', $dokumen->id) }}"
-                                            class="gp-action-btn edit"
-                                            title="Edit">
-
-                                            <i class="fas fa-pen"></i>
-
-                                        </a>
-
-                                        <form
-                                            action="{{ route('dokumen.destroy', $dokumen->id) }}"
-                                            method="POST"
-                                            class="gp-delete-form">
-
-                                            @csrf
-                                            @method('DELETE')
-
-                                            <button
-                                                onclick="return confirm('Yakin ingin menghapus dokumen ini?')"
-                                                class="gp-action-btn delete">
-
-                                                <i class="fas fa-trash"></i>
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
+                                        </tr>
 
             @empty
 

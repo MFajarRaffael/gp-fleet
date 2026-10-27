@@ -15,8 +15,29 @@ class DokumenController extends Controller
     /**
      * Menampilkan semua dokumen.
      */
+
     public function index(Request $request)
     {
+        // Statistik dihitung dari seluruh data dokumen
+        $today = Carbon::today();
+
+        $totalDokumen = Dokumen::count();
+
+        $dokumenExpired = Dokumen::whereDate('tanggal_expired', '<', $today)
+            ->count();
+
+        $dokumenWarning = Dokumen::whereBetween('tanggal_expired', [
+            $today,
+            $today->copy()->addDays(30),
+        ])->count();
+
+        $dokumenAktif = Dokumen::whereDate(
+            'tanggal_expired',
+            '>',
+            $today->copy()->addDays(30)
+        )->count();
+
+        // Query khusus untuk tabel
         $query = Dokumen::with('kendaraan');
 
         // Search
@@ -24,53 +45,54 @@ class DokumenController extends Controller
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
-
                 $q->where('nomor_dokumen', 'like', "%{$search}%")
-                    ->orWhere('jenis_dokumen', 'like', "%{$search}%") // tambah ini
+                    ->orWhere('jenis_dokumen', 'like', "%{$search}%")
                     ->orWhereHas('kendaraan', function ($kendaraan) use ($search) {
-
                         $kendaraan->where('nomor_unit', 'like', "%{$search}%")
                             ->orWhere('plat_nomor', 'like', "%{$search}%")
                             ->orWhere('tipe', 'like', "%{$search}%");
-
                     });
-
             });
         }
 
-        // Jenis Dokumen
+        // Filter jenis dokumen
         if ($request->filled('jenis')) {
             $query->where('jenis_dokumen', $request->jenis);
         }
 
-        // Status
+        // Filter status tabel
         if ($request->filled('status')) {
-
-            $today = Carbon::today();
-
-            if ($request->status == 'expired') {
+            if ($request->status === 'expired') {
                 $query->whereDate('tanggal_expired', '<', $today);
             }
 
-            if ($request->status == 'warning') {
+            if ($request->status === 'warning') {
                 $query->whereBetween('tanggal_expired', [
                     $today,
-                    $today->copy()->addDays(30)
+                    $today->copy()->addDays(30),
                 ]);
             }
 
-            if ($request->status == 'aktif') {
-                $query->whereDate('tanggal_expired', '>', $today->copy()->addDays(30));
+            if ($request->status === 'aktif') {
+                $query->whereDate(
+                    'tanggal_expired',
+                    '>',
+                    $today->copy()->addDays(30)
+                );
             }
-
         }
 
-        $dokumens = $query
-            ->latest()
+        $dokumens = $query->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('dokumen.index', compact('dokumens'));
+        return view('dokumen.index', compact(
+            'dokumens',
+            'totalDokumen',
+            'dokumenExpired',
+            'dokumenWarning',
+            'dokumenAktif'
+        ));
     }
 
     /**
@@ -95,21 +117,21 @@ class DokumenController extends Controller
     {
         $validated = $request->validate([
             'kendaraan_id' => 'required|exists:kendaraans,id',
-
-            'jenis_dokumen' => 'required|in:STNK,KIR,BPKB,Pajak Kendaraan,Surat Jalan,Dokumen Lainnya',
-
+            'jenis_dokumen' => 'required|in:STNK,KIR,BPKB,Pajak Kendaraan,Surat Jalan,SILO,Dokumen Lainnya',
+            'jenis_dokumen_lainnya' => 'required_if:jenis_dokumen,Dokumen Lainnya|nullable|string|max:100',
             'nomor_dokumen' => 'required|string|max:100',
-
             'tanggal_terbit' => 'required|date',
-
             'tanggal_berlaku' => 'required|date|after_or_equal:tanggal_terbit',
-
             'tanggal_expired' => 'required|date|after_or_equal:tanggal_berlaku',
-
-            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:20480',
         ]);
 
-        // Upload file jika ada
+        if ($validated['jenis_dokumen'] === 'Dokumen Lainnya') {
+            $validated['jenis_dokumen'] = trim($validated['jenis_dokumen_lainnya']);
+        }
+
+        unset($validated['jenis_dokumen_lainnya']);
+
         if ($request->hasFile('file')) {
             $validated['file'] = $request->file('file')
                 ->store('dokumen', 'public');
@@ -142,29 +164,26 @@ class DokumenController extends Controller
     {
         $validated = $request->validate([
             'kendaraan_id' => 'required|exists:kendaraans,id',
-
-            'jenis_dokumen' => 'required|in:STNK,KIR,BPKB,Pajak Kendaraan,Surat Jalan,Dokumen Lainnya',
-
+            'jenis_dokumen' => 'required|in:STNK,KIR,BPKB,Pajak Kendaraan,Surat Jalan,SILO,Dokumen Lainnya',
+            'jenis_dokumen_lainnya' => 'required_if:jenis_dokumen,Dokumen Lainnya|nullable|string|max:100',
             'nomor_dokumen' => 'required|string|max:100',
-
             'tanggal_terbit' => 'required|date',
-
             'tanggal_berlaku' => 'required|date|after_or_equal:tanggal_terbit',
-
             'tanggal_expired' => 'required|date|after_or_equal:tanggal_berlaku',
-
-            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:5120',
+            'file' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:20480',
         ]);
 
-        // Jika upload file baru
-        if ($request->hasFile('file')) {
+        if ($validated['jenis_dokumen'] === 'Dokumen Lainnya') {
+            $validated['jenis_dokumen'] = trim($validated['jenis_dokumen_lainnya']);
+        }
 
-            // Hapus file lama
+        unset($validated['jenis_dokumen_lainnya']);
+
+        if ($request->hasFile('file')) {
             if ($dokumen->file) {
                 Storage::disk('public')->delete($dokumen->file);
             }
 
-            // Simpan file baru
             $validated['file'] = $request->file('file')
                 ->store('dokumen', 'public');
         }
@@ -172,7 +191,7 @@ class DokumenController extends Controller
         $dokumen->update($validated);
 
         return redirect()
-            ->route('dokumen.index')
+            ->route('dokumen.index', $request->only('search', 'status', 'jenis', 'page'))
             ->with('success', 'Dokumen berhasil diupdate.');
     }
 

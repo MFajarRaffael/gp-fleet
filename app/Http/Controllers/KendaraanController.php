@@ -168,7 +168,7 @@ class KendaraanController extends Controller
         $kendaraan->update($validated);
 
         return redirect()
-            ->route('kendaraan.index')
+            ->route('kendaraan.index', $request->only('search', 'kategori', 'page'))
             ->with('success', 'Data Unit berhasil diupdate.');
     }
 

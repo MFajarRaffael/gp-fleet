@@ -122,7 +122,7 @@
         <aside class="main-sidebar gp-sidebar elevation-4">
 
             {{-- Brand --}}
-            <a href="{{ route('dashboard') }}" class="brand-link gp-brand">
+            <div class="brand-link gp-brand">
 
                 <div class="gp-brand-logo">
 
@@ -138,7 +138,7 @@
 
                 </div>
 
-            </a>
+            </div>
 
 
             <div class="sidebar">

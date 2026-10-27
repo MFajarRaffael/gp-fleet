@@ -86,7 +86,10 @@
     </div>
 
 
-    <form action="{{ route('kendaraan.update', $kendaraan->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('kendaraan.update', array_merge(
+    ['kendaraan' => $kendaraan->id],
+    request()->only('search', 'kategori', 'page')
+)) }}" method="POST" enctype="multipart/form-data"></form>
 
         @csrf
         @method('PUT')
@@ -347,7 +350,7 @@
 
         <div class="gp-form-footer">
 
-            <a href="{{ route('kendaraan.index') }}" class="gp-btn gp-btn-light">
+            <a href="{{ route('kendaraan.index', request()->only('search', 'kategori', 'page')) }}" class="gp-btn gp-btn-light">
 
                 <i class="fas fa-arrow-left"></i>
                 Kembali

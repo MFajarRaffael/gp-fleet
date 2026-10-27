@@ -234,6 +234,7 @@ FILTER
     
     </form>
 
+    </div>
 
 {{-- =========================================================
 DATA UNIT
@@ -360,256 +361,257 @@ DATA UNIT
 
                     @forelse($kendaraans as $kendaraan)
 
-                        <tr>
+                                            <tr>
 
-                        <td class="text-center">
-                            <input type="checkbox" value="{{ $kendaraan->id }}" class="vehicle-checkbox">
-                        </td>
+                                            <td class="text-center">
+                                                <input type="checkbox" value="{{ $kendaraan->id }}" class="vehicle-checkbox">
+                                            </td>
 
-                        <td class="text-center gp-no">
-                            {{ $kendaraans->firstItem() + $loop->index }}
-                        </td>
+                                            <td class="text-center gp-no">
+                                                {{ $kendaraans->firstItem() + $loop->index }}
+                                            </td>
 
-                            {{-- NO --}}
+                                                {{-- NO --}}
 
 
-                            {{-- FOTO --}}
+                                                {{-- FOTO --}}
 
-                            <td>
+                                                <td>
 
-                                @if($kendaraan->foto)
+                                                    @if($kendaraan->foto)
 
-                                    <img src="{{ asset('storage/' . $kendaraan->foto) }}"
-                                        alt="Foto {{ $kendaraan->nomor_unit }}" class="gp-vehicle-photo">
+                                                        <img src="{{ asset('storage/' . $kendaraan->foto) }}"
+                                                            alt="Foto {{ $kendaraan->nomor_unit }}" class="gp-vehicle-photo">
 
-                                @else
+                                                    @else
 
-                                    <div class="gp-no-photo">
-                                        <i class="fas fa-car"></i>
-                                    </div>
+                                                        <div class="gp-no-photo">
+                                                            <i class="fas fa-car"></i>
+                                                        </div>
 
-                                @endif
+                                                    @endif
 
-                            </td>
+                                                </td>
 
 
-                            {{-- KATEGORI --}}
+                                                {{-- KATEGORI --}}
 
-                            <td>
+                                                <td>
 
-                                @if($kendaraan->kategori == 'Kendaraan')
+                                                    @if($kendaraan->kategori == 'Kendaraan')
 
-                                    <span class="gp-badge gp-badge-green">
-                                        <i class="fas fa-car-side"></i>
-                                        Kendaraan
-                                    </span>
+                                                        <span class="gp-badge gp-badge-green">
+                                                            <i class="fas fa-car-side"></i>
+                                                            Kendaraan
+                                                        </span>
 
-                                @elseif($kendaraan->kategori == 'HV')
+                                                    @elseif($kendaraan->kategori == 'HV')
 
-                                    <span class="gp-badge gp-badge-blue">
-                                        <i class="fas fa-truck-moving"></i>
-                                        HV
-                                    </span>
+                                                        <span class="gp-badge gp-badge-blue">
+                                                            <i class="fas fa-truck-moving"></i>
+                                                            HV
+                                                        </span>
 
-                                @elseif($kendaraan->kategori == 'HE')
+                                                    @elseif($kendaraan->kategori == 'HE')
 
-                                    <span class="gp-badge gp-badge-gray">
-                                        <i class="fas fa-tractor"></i>
-                                        HE
-                                    </span>
+                                                        <span class="gp-badge gp-badge-gray">
+                                                            <i class="fas fa-tractor"></i>
+                                                            HE
+                                                        </span>
 
-                                @else
+                                                    @else
 
-                                    <span class="gp-badge gp-badge-neutral">
-                                        {{ $kendaraan->kategori }}
-                                    </span>
+                                                        <span class="gp-badge gp-badge-neutral">
+                                                            {{ $kendaraan->kategori }}
+                                                        </span>
 
-                                @endif
+                                                    @endif
 
-                            </td>
+                                                </td>
 
 
-                            {{-- TIPE --}}
+                                                {{-- TIPE --}}
 
-                            <td>
-                                <span class="gp-main-text">
-                                    {{ $kendaraan->tipe }}
-                                </span>
-                            </td>
+                                                <td>
+                                                    <span class="gp-main-text">
+                                                        {{ $kendaraan->tipe }}
+                                                    </span>
+                                                </td>
 
 
-                            {{-- PLAT --}}
+                                                {{-- PLAT --}}
 
-                            <td>
+                                                <td>
 
-                                @if($kendaraan->plat_nomor)
+                                                    @if($kendaraan->plat_nomor)
 
-                                    <span class="gp-plate">
-                                        {{ $kendaraan->plat_nomor }}
-                                    </span>
+                                                        <span class="gp-plate">
+                                                            {{ $kendaraan->plat_nomor }}
+                                                        </span>
 
-                                @else
+                                                    @else
 
-                                    <span class="gp-empty">
-                                        -
-                                    </span>
+                                                        <span class="gp-empty">
+                                                            -
+                                                        </span>
 
-                                @endif
+                                                    @endif
 
-                            </td>
+                                                </td>
 
 
-                            {{-- NOMOR UNIT --}}
+                                                {{-- NOMOR UNIT --}}
 
-                            <td>
+                                                <td>
 
-                                <strong class="gp-unit-number">
-                                    {{ $kendaraan->nomor_unit }}
-                                </strong>
+                                                    <strong class="gp-unit-number">
+                                                        {{ $kendaraan->nomor_unit }}
+                                                    </strong>
 
-                            </td>
+                                                </td>
 
 
-                            {{-- MERK --}}
+                                                {{-- MERK --}}
 
-                            <td>
-                                <span class="gp-main-text">
-                                    {{ $kendaraan->merk }}
-                                </span>
-                            </td>
+                                                <td>
+                                                    <span class="gp-main-text">
+                                                        {{ $kendaraan->merk }}
+                                                    </span>
+                                                </td>
 
 
-                            {{-- TAHUN --}}
+                                                {{-- TAHUN --}}
 
-                            <td>
-                                <span class="gp-year">
-                                    {{ $kendaraan->tahun }}
-                                </span>
-                            </td>
+                                                <td>
+                                                    <span class="gp-year">
+                                                        {{ $kendaraan->tahun }}
+                                                    </span>
+                                                </td>
 
 
-                            {{-- PIC --}}
+                                                {{-- PIC --}}
 
-                            <td>
+                                                <td>
 
-                                @if($kendaraan->pic)
+                                                    @if($kendaraan->pic)
 
-                                    <div class="gp-pic">
+                                                        <div class="gp-pic">
 
-                                        <div class="gp-pic-avatar">
-                                            <i class="fas fa-user"></i>
-                                        </div>
+                                                            <div class="gp-pic-avatar">
+                                                                <i class="fas fa-user"></i>
+                                                            </div>
 
-                                        <span>
-                                            {{ $kendaraan->pic->nama }}
-                                        </span>
+                                                            <span>
+                                                                {{ $kendaraan->pic->nama }}
+                                                            </span>
 
-                                    </div>
+                                                        </div>
 
-                                @else
+                                                    @else
 
-                                    <span class="gp-empty">
-                                        Belum ada PIC
-                                    </span>
+                                                        <span class="gp-empty">
+                                                            Belum ada PIC
+                                                        </span>
 
-                                @endif
+                                                    @endif
 
-                            </td>
+                                                </td>
 
 
-                            {{-- PROJECT --}}
+                                                {{-- PROJECT --}}
 
-                            <td>
+                                                <td>
 
-                                @if($kendaraan->project)
+                                                    @if($kendaraan->project)
 
-                                    <span class="gp-project">
-                                        {{ $kendaraan->project }}
-                                    </span>
+                                                        <span class="gp-project">
+                                                            {{ $kendaraan->project }}
+                                                        </span>
 
-                                @else
+                                                    @else
 
-                                    <span class="gp-empty">
-                                        -
-                                    </span>
+                                                        <span class="gp-empty">
+                                                            -
+                                                        </span>
 
-                                @endif
+                                                    @endif
 
-                            </td>
+                                                </td>
 
 
-                            {{-- STATUS --}}
+                                                {{-- STATUS --}}
 
-                            <td>
+                                                <td>
 
-                                @if($kendaraan->status == 'Aktif')
+                                                    @if($kendaraan->status == 'Aktif')
 
-                                    <span class="gp-status active">
+                                                        <span class="gp-status active">
 
-                                        <span class="gp-status-dot"></span>
+                                                            <span class="gp-status-dot"></span>
 
-                                        Aktif
+                                                            Aktif
 
-                                    </span>
+                                                        </span>
 
-                                @else
+                                                    @else
 
-                                    <span class="gp-status inactive">
+                                                        <span class="gp-status inactive">
 
-                                        <span class="gp-status-dot"></span>
+                                                            <span class="gp-status-dot"></span>
 
-                                        Tidak Aktif
+                                                            Tidak Aktif
 
-                                    </span>
+                                                        </span>
 
-                                @endif
+                                                    @endif
 
-                            </td>
+                                                </td>
 
 
-                            {{-- AKSI --}}
+                                                {{-- AKSI --}}
 
-                            <td>
+                                                <td>
 
-                                <div class="gp-actions">
+                                                    <div class="gp-actions">
 
-                                    <a href="{{ route('kendaraan.show', $kendaraan->id) }}" class="gp-action-btn detail"
-                                        title="Detail">
+                                                        <a href="{{ route('kendaraan.show', $kendaraan->id) }}" class="gp-action-btn detail"
+                                                            title="Detail">
 
-                                        <i class="fas fa-eye"></i>
+                                                            <i class="fas fa-eye"></i>
 
-                                    </a>
+                                                        </a>
 
 
-                                    <a href="{{ route('kendaraan.edit', $kendaraan->id) }}" class="gp-action-btn edit"
-                                        title="Edit">
+                                                        <a href="{{ route('kendaraan.edit', array_merge(
+                                                            ['kendaraan' => $kendaraan->id], request()->only('search', 'kategori', 'page'))) }}
+                                                                " class="gp-action-btn edit" title="Edit">
 
-                                        <i class="fas fa-pen"></i>
+                                                            <i class="fas fa-pen"></i>
 
-                                    </a>
+                                                        </a>
 
 
-                                    <form action="{{ route('kendaraan.destroy', $kendaraan->id) }}" method="POST"
-                                        class="gp-delete-form">
+                                                        <form action="{{ route('kendaraan.destroy', $kendaraan->id) }}" method="POST"
+                                                            class="gp-delete-form">
 
-                                        @csrf
+                                                            @csrf
 
-                                        @method('DELETE')
+                                                            @method('DELETE')
 
-                                        <button type="submit" class="gp-action-btn delete" title="Hapus"
-                                            onclick="return confirm('Yakin ingin menghapus unit ini?')">
+                                                            <button type="submit" class="gp-action-btn delete" title="Hapus"
+                                                                onclick="return confirm('Yakin ingin menghapus unit ini?')">
 
-                                            <i class="fas fa-trash"></i>
+                                                                <i class="fas fa-trash"></i>
 
-                                        </button>
+                                                            </button>
 
-                                    </form>
+                                                        </form>
 
-                                </div>
+                                                    </div>
 
-                            </td>
+                                                </td>
 
-                        </tr>
+                                            </tr>
 
 
                     @empty

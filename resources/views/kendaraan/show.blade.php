@@ -408,7 +408,7 @@
         <div class="gp-empty-state">
 
             <div class="gp-empty-icon">
-                <i class="fas fa-file-circle-xmark"></i>
+                <i class="fas fa-file-alt"></i>
             </div>
 
             <strong>Belum Ada Dokumen</strong>
