@@ -4,7 +4,9 @@ use App\Models\AuditLog;
 use App\Models\User;
 
 it('membatasi akses user ke pengelolaan pengguna, PIC, dan riwayat aktivitas', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
 
     $this->actingAs($user)
         ->get(route('users.index'))
@@ -16,7 +18,9 @@ it('membatasi akses user ke pengelolaan pengguna, PIC, dan riwayat aktivitas', f
 });
 
 it('mengizinkan user mengakses halaman kendaraan dan dokumen', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
 
     $this->actingAs($user)
         ->get(route('kendaraan.index'))
@@ -26,11 +30,15 @@ it('mengizinkan user mengakses halaman kendaraan dan dokumen', function () {
 });
 
 it('mencegah admin mengedit akun super admin', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $admin->role = 'admin';
     $admin->save();
 
-    $superAdmin = User::factory()->create();
+    $superAdmin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $superAdmin->role = 'super_admin';
     $superAdmin->save();
 
@@ -40,13 +48,15 @@ it('mencegah admin mengedit akun super admin', function () {
 });
 
 it('mencegah admin membuat akun super admin melalui manipulasi request', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $admin->role = 'admin';
     $admin->save();
 
     $response = $this->actingAs($admin)->post(route('users.store'), [
         'name' => 'Pengguna Pengujian',
-        'email' => 'uji-role@example.com',
+        'email' => 'uji-role@greenplanet.co.id',
         'password' => 'password123',
         'password_confirmation' => 'password123',
         'role' => 'super_admin',
@@ -55,18 +65,22 @@ it('mencegah admin membuat akun super admin melalui manipulasi request', functio
     $response->assertRedirect(route('users.index'));
 
     $this->assertDatabaseHas('users', [
-        'email' => 'uji-role@example.com',
+        'email' => 'uji-role@greenplanet.co.id',
         'role' => 'user',
     ]);
 });
 
 it('mencegah super admin menurunkan role akunnya sendiri', function () {
-    $superAdmin = User::factory()->create();
+    $superAdmin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $superAdmin->role = 'super_admin';
     $superAdmin->save();
 
     // Pastikan masih ada super admin lain.
-    $anotherSuperAdmin = User::factory()->create();
+    $anotherSuperAdmin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $anotherSuperAdmin->role = 'super_admin';
     $anotherSuperAdmin->save();
 
@@ -81,8 +95,90 @@ it('mencegah super admin menurunkan role akunnya sendiri', function () {
     expect($superAdmin->fresh()->role)->toBe('super_admin');
 });
 
+it('menolak pembuatan akun dengan email di luar domain perusahaan', function () {
+    $superAdmin = User::factory()->create([
+        'email' => 'superadmin@greenplanet.co.id',
+        'role' => 'super_admin',
+    ]);
+
+    $this->actingAs($superAdmin)
+        ->post(route('users.store'), [
+            'name' => 'Pengguna Pengujian',
+            'email' => 'pegawai@gmail.com',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => 'user',
+        ])
+        ->assertSessionHasErrors('email');
+
+    $this->assertDatabaseMissing('users', [
+        'email' => 'pegawai@gmail.com',
+    ]);
+});
+
+it('menolak pembuatan akun dengan email huruf besar', function () {
+    $superAdmin = User::factory()->create([
+        'email' => 'superadmin@greenplanet.co.id',
+        'role' => 'super_admin',
+    ]);
+
+    $this->actingAs($superAdmin)
+        ->post(route('users.store'), [
+            'name' => 'Pengguna Pengujian',
+            'email' => 'Pegawai@greenplanet.co.id',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'role' => 'user',
+        ])
+        ->assertSessionHasErrors('email');
+});
+
+it('menolak pengeditan akun dengan email di luar domain perusahaan', function () {
+    $superAdmin = User::factory()->create([
+        'email' => 'superadmin@greenplanet.co.id',
+        'role' => 'super_admin',
+    ]);
+
+    $user = User::factory()->create([
+        'email' => 'pegawai@greenplanet.co.id',
+    ]);
+
+    $this->actingAs($superAdmin)
+        ->put(route('users.update', $user), [
+            'name' => $user->name,
+            'email' => 'pegawai@gmail.com',
+            'role' => 'user',
+        ])
+        ->assertSessionHasErrors('email');
+
+    expect($user->fresh()->email)->toBe('pegawai@greenplanet.co.id');
+});
+
+it('menolak pengeditan akun dengan email huruf besar', function () {
+    $superAdmin = User::factory()->create([
+        'email' => 'superadmin@greenplanet.co.id',
+        'role' => 'super_admin',
+    ]);
+
+    $user = User::factory()->create([
+        'email' => 'pegawai@greenplanet.co.id',
+    ]);
+
+    $this->actingAs($superAdmin)
+        ->put(route('users.update', $user), [
+            'name' => $user->name,
+            'email' => 'Pegawai@greenplanet.co.id',
+            'role' => 'user',
+        ])
+        ->assertSessionHasErrors('email');
+
+    expect($user->fresh()->email)->toBe('pegawai@greenplanet.co.id');
+});
+
 it('tidak menyimpan password atau remember token dalam audit log pengguna', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
 
     $log = AuditLog::query()
         ->where('auditable_type', User::class)
@@ -96,11 +192,15 @@ it('tidak menyimpan password atau remember token dalam audit log pengguna', func
 
 
 it('mencegah admin menghapus akun admin lain', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $admin->role = 'admin';
     $admin->save();
 
-    $anotherAdmin = User::factory()->create();
+    $anotherAdmin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $anotherAdmin->role = 'admin';
     $anotherAdmin->save();
 
@@ -112,11 +212,15 @@ it('mencegah admin menghapus akun admin lain', function () {
 });
 
 it('mencegah admin menghapus akun super admin', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $admin->role = 'admin';
     $admin->save();
 
-    $superAdmin = User::factory()->create();
+    $superAdmin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $superAdmin->role = 'super_admin';
     $superAdmin->save();
 
@@ -128,7 +232,9 @@ it('mencegah admin menghapus akun super admin', function () {
 });
 
 it('mencegah super admin terakhir menghapus akun sendiri dari profil', function () {
-    $superAdmin = User::factory()->create();
+    $superAdmin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $superAdmin->role = 'super_admin';
     $superAdmin->save();
 
@@ -142,11 +248,15 @@ it('mencegah super admin terakhir menghapus akun sendiri dari profil', function 
 });
 
 it('mencatat penghapusan akun dalam audit log', function () {
-    $admin = User::factory()->create();
+    $admin = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
     $admin->role = 'super_admin';
     $admin->save();
 
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'email' => fake()->unique()->userName() . '@greenplanet.co.id',
+    ]);
 
     $this->actingAs($admin)
         ->delete(route('users.destroy', $user))
@@ -158,4 +268,25 @@ it('mencatat penghapusan akun dalam audit log', function () {
             ->where('auditable_id', $user->id)
             ->exists()
     )->toBeTrue();
+});
+
+
+it('menolak akses halaman internal bagi pengguna yang belum login', function () {
+    $halamanInternal = [
+        '/dashboard',
+        '/kendaraan',
+        '/dokumen',
+        '/pic',
+        '/users',
+        '/riwayat-aktivitas',
+        '/notifikasi',
+        '/search/global',
+        '/push-subscriptions/status',
+        '/hse',
+    ];
+
+    foreach ($halamanInternal as $halaman) {
+        $this->get($halaman)
+            ->assertRedirect(route('login'));
+    }
 });

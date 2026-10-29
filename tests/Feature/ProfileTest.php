@@ -13,13 +13,15 @@ test('profile page is displayed', function () {
 });
 
 test('profile information can be updated', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'email' => 'pegawai@greenplanet.co.id',
+    ]);
 
     $response = $this
         ->actingAs($user)
         ->patch('/profile', [
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'pegawai.baru@greenplanet.co.id',
         ]);
 
     $response
@@ -29,12 +31,44 @@ test('profile information can be updated', function () {
     $user->refresh();
 
     $this->assertSame('Test User', $user->name);
-    $this->assertSame('test@example.com', $user->email);
+    $this->assertSame('pegawai.baru@greenplanet.co.id', $user->email);
     $this->assertNull($user->email_verified_at);
 });
 
+test('profile rejects email outside the company domain', function () {
+    $user = User::factory()->create([
+        'email' => 'pegawai@greenplanet.co.id',
+    ]);
+
+    $this->actingAs($user)
+        ->patch('/profile', [
+            'name' => $user->name,
+            'email' => 'pegawai@gmail.com',
+        ])
+        ->assertSessionHasErrors('email');
+
+    expect($user->fresh()->email)->toBe('pegawai@greenplanet.co.id');
+});
+
+test('profile rejects uppercase email addresses', function () {
+    $user = User::factory()->create([
+        'email' => 'pegawai@greenplanet.co.id',
+    ]);
+
+    $this->actingAs($user)
+        ->patch('/profile', [
+            'name' => $user->name,
+            'email' => 'Pegawai@greenplanet.co.id',
+        ])
+        ->assertSessionHasErrors('email');
+
+    expect($user->fresh()->email)->toBe('pegawai@greenplanet.co.id');
+});
+
 test('email verification status is unchanged when the email address is unchanged', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'email' => 'pegawai@greenplanet.co.id',
+    ]);
 
     $response = $this
         ->actingAs($user)

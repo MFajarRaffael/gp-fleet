@@ -355,11 +355,11 @@ return [
             'icon' => 'fas fa-bell',
         ],
 
-        [
-            'text' => 'HSSE',
-            'url' => 'hsse',
-            'icon' => 'fas fa-hard-hat',
-        ],
+        // [
+        //     'text' => 'HSSE',
+        //     'url' => 'hsse',
+        //     'icon' => 'fas fa-hard-hat',
+        // ],
 
         [
             'text' => 'PIC',

@@ -9,7 +9,9 @@ test('login screen can be rendered', function () {
 });
 
 test('users can authenticate using the login screen', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'email' => 'pegawai@greenplanet.co.id',
+    ]);
 
     $response = $this->post('/login', [
         'email' => $user->email,
@@ -20,8 +22,24 @@ test('users can authenticate using the login screen', function () {
     $response->assertRedirect(route('dashboard', absolute: false));
 });
 
+
+test('users cannot login with an email outside the company domain', function () {
+    $user = User::factory()->create([
+        'email' => 'pegawai@gmail.com',
+    ]);
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $this->assertGuest();
+});
+
 test('users can not authenticate with invalid password', function () {
-    $user = User::factory()->create();
+    $user = User::factory()->create([
+        'email' => 'pegawai@greenplanet.co.id',
+    ]);
 
     $this->post('/login', [
         'email' => $user->email,

@@ -26,7 +26,14 @@ class UserController extends Controller
 
         $rules = [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'regex:/\A[a-z0-9._%+-]+@greenplanet\.co\.id\z/',
+                'unique:users,email',
+            ],
             'password' => 'required|string|min:8|confirmed',
         ];
 
@@ -71,7 +78,14 @@ class UserController extends Controller
 
         $rules = [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'regex:/\A[a-z0-9._%+-]+@greenplanet\.co\.id\z/',
+                'unique:users,email,' . $user->id,
+            ],
             'password' => 'nullable|string|min:8|confirmed',
         ];
 

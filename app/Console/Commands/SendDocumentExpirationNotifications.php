@@ -7,7 +7,9 @@ use App\Models\Dokumen;
 use App\Models\RiwayatNotifikasi;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Throwable;
 
 class SendDocumentExpirationNotifications extends Command
 {
@@ -24,55 +26,31 @@ class SendDocumentExpirationNotifications extends Command
             ->whereDate('tanggal_expired', '<=', $today->copy()->addDays(30))
             ->get();
 
-        $users = User::whereNotNull('email')->get();
+        $recipients = User::query()
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->pluck('email')
+            ->filter(fn($email) => filter_var($email, FILTER_VALIDATE_EMAIL))
+            ->unique()
+            ->values();
+
+        $notifMap = [
+            30 => ['column' => 'notif_h30_sent_at', 'jenis' => 'H-30'],
+            15 => ['column' => 'notif_h15_sent_at', 'jenis' => 'H-15'],
+            5 => ['column' => 'notif_h5_sent_at', 'jenis' => 'H-5'],
+            4 => ['column' => 'notif_h4_sent_at', 'jenis' => 'H-4'],
+            3 => ['column' => 'notif_h3_sent_at', 'jenis' => 'H-3'],
+            2 => ['column' => 'notif_h2_sent_at', 'jenis' => 'H-2'],
+            1 => ['column' => 'notif_h1_sent_at', 'jenis' => 'H-1'],
+            0 => ['column' => 'notif_h0_sent_at', 'jenis' => 'H-0'],
+        ];
 
         foreach ($dokumens as $dokumen) {
+            $expiryDate = $dokumen->tanggal_expired->copy()->startOfDay();
 
-            // Carbon 3 mengembalikan float, jadi cast ke int
-            $daysLeft = (int) $today->diffInDays(
-                $dokumen->tanggal_expired->startOfDay(),
-                false
-            );
-
-            // Mapping notifikasi
-            $notifMap = [
-                30 => [
-                    'column' => 'notif_h30_sent_at',
-                    'jenis' => 'H-30',
-                ],
-                15 => [
-                    'column' => 'notif_h15_sent_at',
-                    'jenis' => 'H-15',
-                ],
-                5 => [
-                    'column' => 'notif_h5_sent_at',
-                    'jenis' => 'H-5',
-                ],
-                4 => [
-                    'column' => 'notif_h4_sent_at',
-                    'jenis' => 'H-4',
-                ],
-                3 => [
-                    'column' => 'notif_h3_sent_at',
-                    'jenis' => 'H-3',
-                ],
-                2 => [
-                    'column' => 'notif_h2_sent_at',
-                    'jenis' => 'H-2',
-                ],
-                1 => [
-                    'column' => 'notif_h1_sent_at',
-                    'jenis' => 'H-1',
-                ],
-                0 => [
-                    'column' => 'notif_h0_sent_at',
-                    'jenis' => 'H-0',
-                ],
-            ];
-
+            $daysLeft = (int) $today->diffInDays($expiryDate, false);
             $notif = $notifMap[$daysLeft] ?? null;
 
-            // Hari ini bukan jadwal notifikasi
             if (!$notif) {
                 continue;
             }
@@ -80,53 +58,78 @@ class SendDocumentExpirationNotifications extends Command
             $column = $notif['column'];
             $jenisNotif = $notif['jenis'];
 
-            // Sudah pernah dikirim untuk H-x ini
             if ($dokumen->$column !== null) {
                 continue;
             }
 
-            try {
-
-                // Kirim email ke semua user yang memiliki email
-                foreach ($users as $user) {
-                    Mail::to($user->email)
-                        ->send(new DocumentExpirationMail($dokumen));
-                }
-
-                // Tandai notifikasi sudah dikirim
-                $dokumen->$column = now();
-                $dokumen->save();
-
-                // Simpan riwayat notifikasi
-                RiwayatNotifikasi::create([
-                    'dokumen_id' => $dokumen->id,
-                    'kendaraan_id' => $dokumen->kendaraan_id,
-                    'pic_id' => optional($dokumen->kendaraan)->pic_id,
-                    'jenis_notifikasi' => $jenisNotif,
-                    'status' => 'Berhasil',
-                    'tanggal_kirim' => now(),
-                    'keterangan' => 'Email berhasil dikirim.',
-                ]);
-
-                $this->info(
-                    "✓ {$jenisNotif}: {$dokumen->jenis_dokumen} - Unit {$dokumen->kendaraan->nomor_unit}"
+            if ($recipients->isEmpty()) {
+                $this->recordHistory(
+                    $dokumen,
+                    $jenisNotif,
+                    'Gagal',
+                    'Tidak ada alamat email penerima yang valid.'
                 );
 
-            } catch (\Exception $e) {
+                $this->error("Gagal {$jenisNotif}: tidak ada penerima email valid.");
+                continue;
+            }
 
-                // Simpan histori jika email gagal
-                RiwayatNotifikasi::create([
+            try {
+                // Satu pesan untuk semua penerima; alamat lain memakai BCC.
+                $email = $recipients->values();
+
+                Mail::to($email->shift())
+                    ->bcc($email->all())
+                    ->send(new DocumentExpirationMail($dokumen));
+            } catch (Throwable $e) {
+                Log::error('Pengiriman pengingat dokumen gagal.', [
                     'dokumen_id' => $dokumen->id,
-                    'kendaraan_id' => $dokumen->kendaraan_id,
-                    'pic_id' => optional($dokumen->kendaraan)->pic_id,
                     'jenis_notifikasi' => $jenisNotif,
-                    'status' => 'Gagal',
-                    'tanggal_kirim' => now(),
-                    'keterangan' => $e->getMessage(),
+                    'exception' => $e,
+                ]);
+
+                $this->recordHistory(
+                    $dokumen,
+                    $jenisNotif,
+                    'Gagal',
+                    'Pengiriman email gagal. Periksa log aplikasi.'
+                );
+
+                $this->error("Gagal {$jenisNotif}: dokumen ID {$dokumen->id}.");
+                continue;
+            }
+
+            // Tandai setelah mailer menerima pengiriman dengan sukses.
+            // Ini bukan jaminan email sudah masuk ke kotak masuk penerima.
+            $dokumen->$column = now();
+
+            try {
+                $dokumen->save();
+            } catch (Throwable $e) {
+                Log::critical('Email terkirim, tetapi status notifikasi gagal disimpan.', [
+                    'dokumen_id' => $dokumen->id,
+                    'jenis_notifikasi' => $jenisNotif,
+                    'exception' => $e,
                 ]);
 
                 $this->error(
-                    "✗ {$jenisNotif}: {$dokumen->jenis_dokumen} - Unit {$dokumen->kendaraan->nomor_unit}"
+                    "Email diproses, tetapi status dokumen ID {$dokumen->id} gagal disimpan."
+                );
+
+                continue;
+            }
+
+            $historySaved = $this->recordHistory(
+                $dokumen,
+                $jenisNotif,
+                'Berhasil',
+                'Pengiriman email diterima oleh mailer untuk '
+                . ($recipients->count()) . ' penerima.'
+            );
+
+            if ($historySaved) {
+                $this->info(
+                    "Berhasil {$jenisNotif}: dokumen ID {$dokumen->id}."
                 );
             }
         }
@@ -134,5 +137,39 @@ class SendDocumentExpirationNotifications extends Command
         $this->info('Pengecekan notifikasi selesai.');
 
         return self::SUCCESS;
+    }
+
+    private function recordHistory(
+        Dokumen $dokumen,
+        string $jenisNotif,
+        string $status,
+        string $keterangan
+    ): bool {
+        try {
+            RiwayatNotifikasi::create([
+                'dokumen_id' => $dokumen->id,
+                'kendaraan_id' => $dokumen->kendaraan_id,
+                'pic_id' => $dokumen->kendaraan?->pic_id,
+                'jenis_notifikasi' => $jenisNotif,
+                'status' => $status,
+                'tanggal_kirim' => now(),
+                'keterangan' => $keterangan,
+            ]);
+
+            return true;
+        } catch (Throwable $e) {
+            Log::error('Riwayat notifikasi gagal disimpan.', [
+                'dokumen_id' => $dokumen->id,
+                'jenis_notifikasi' => $jenisNotif,
+                'status' => $status,
+                'exception' => $e,
+            ]);
+
+            $this->error(
+                "Riwayat {$jenisNotif} untuk dokumen ID {$dokumen->id} gagal disimpan."
+            );
+
+            return false;
+        }
     }
 }

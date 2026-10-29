@@ -42,7 +42,27 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $email = $this->input('email', '');
+
+        if (
+            ! is_string($email)
+            || $email !== trim($email)
+            || $email !== strtolower($email)
+            || !preg_match('/\A[a-z0-9._%+-]+@greenplanet\.co\.id\z/', $email)
+        ) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        if (
+            !Auth::attempt([
+                'email' => $email,
+                'password' => $this->input('password'),
+            ], $this->boolean('remember'))
+        ) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
